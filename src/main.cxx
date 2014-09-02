@@ -21,6 +21,8 @@ int main() {
 
   //  ch = getChar(fin);
 //testando rafael
-  
+
+
+  Testando lugao ta na escuta
   return 0;
 }
