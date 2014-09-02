@@ -1,4 +1,3 @@
-// "Copyright [year] <Copyright Owner>"
 #include <iostream>
 #include <fstream>
 
@@ -34,9 +33,7 @@ int main() {
     //     std::cout << getChar(fin) << std::endl;
   Token token = getToken(fin);
   
-  //std::cout << getToken(fin).linha << std::endl;
 
-    //}
 
   return 0;
 }
