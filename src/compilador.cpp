@@ -15,10 +15,13 @@ Token getToken(std::ifstream & fin) {
   
   char ch;
   int cont= 0;
-  while ( ch=fin.get()  && ch!= ' ' ) {
-    std::cout << ch << std::endl;
+  ch= fin.get();
+  while ( ch!= ' ' ) {
     token.info[cont]=ch;
     cont++;
+    
+    ch= fin.get();
+    
   }
 
   return token;
@@ -28,12 +31,7 @@ int main() {
   std::ifstream fin("file.lug", std::fstream::in);
   char ch;
 
-
-  //  while (!fin.eof()) {
-    //     std::cout << getChar(fin) << std::endl;
-  Token token = getToken(fin);
-  
-
+  std::cout << getToken(fin).info << std::endl;
 
   return 0;
 }
