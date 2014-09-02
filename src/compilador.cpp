@@ -2,40 +2,41 @@
 #include <iostream>
 #include <fstream>
 
-char getChar(std::ifstream & fin) {
-  return 'C';
+typedef struct Token {
+  char info[21];
+  int linha;
+  int classificacao;
+
+}Token;
+
   
-  // faguin_28 picagrroooooooooossa
   
+Token getToken(std::ifstream & fin) {
+  Token token;
+  
+  char ch;
+  int cont= 0;
+  while ( ch=fin.get()  && ch!= ' ' ) {
+    std::cout << ch << std::endl;
+    token.info[cont]=ch;
+    cont++;
+  }
+
+  return token;
 }
+
 int main() {
   std::ifstream fin("file.lug", std::fstream::in);
   char ch;
 
-  //ch = getChar(fin);
-  // printf(" %c",ch);
+
+  //  while (!fin.eof()) {
+    //     std::cout << getChar(fin) << std::endl;
+  Token token = getToken(fin);
   
-  // getChar(fin);
-  //  std::cout << getChar(fin) << std::endl;
+  //std::cout << getToken(fin).linha << std::endl;
 
-  while (!fin.eof()) {
-     std::cout << getChar(fin) << std::endl;
-  }
-
-  //  ch = getChar(fin);
-// testando rafael
-  // teste acertando erros
-
-
-
-  do {
-    std::cout << "gay" << std::endl;
-  }
-  
-
- for(int i;i<n;i++) {
-std::cout << "fagner gay" << std::endl;
- }
+    //}
 
   return 0;
 }
