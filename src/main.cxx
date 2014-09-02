@@ -21,7 +21,13 @@ int main() {
 
   //  ch = getChar(fin);
 //testando rafael
+<<<<<<< HEAD
 //codigo commite 4
   
+=======
+
+
+  Testando lugao ta na escuta
+>>>>>>> 8f85b6a63c3b0daa2272323a95a9b4752a9e9fe0
   return 0;
 }
