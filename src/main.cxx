@@ -3,10 +3,7 @@
 #include <fstream>
 
 char getChar(std::ifstream & fin) {
-  return 'C';
-  
-  // faguin_28 picagrroooooooooossa
-  
+  return 'C';  
 }
 int main() {
   std::ifstream fin("file.lug", std::fstream::in);
@@ -23,7 +20,6 @@ int main() {
   }
 
   //  ch = getChar(fin);
-//testando novamente
 
   return 0;
 }
