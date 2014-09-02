@@ -20,8 +20,7 @@ int main() {
   }
 
   //  ch = getChar(fin);
-//testando rafael
-  // teste acertando erros
+//testando novamente
 
   return 0;
 }
