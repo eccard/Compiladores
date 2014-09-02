@@ -23,14 +23,19 @@ int main() {
   }
 
   //  ch = getChar(fin);
-//testando rafael
+// testando rafael
   // teste acertando erros
 
 
 
-  do{
+  do {
     std::cout << "gay" << std::endl;
   }
   
+
+ for(int i;i<n;i++) {
+std::cout << "fagner gay" << std::endl;
+ }
+
   return 0;
 }
