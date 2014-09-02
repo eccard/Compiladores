@@ -12,7 +12,7 @@ int main() {
   std::ifstream fin("file.lug", std::fstream::in);
   char ch;
 
-  // ch = getChar(fin);
+  //ch = getChar(fin);
   // printf(" %c",ch);
   
   // getChar(fin);
@@ -20,12 +20,17 @@ int main() {
 
   while (!fin.eof()) {
      std::cout << getChar(fin) << std::endl;
-fdsdfsdf
-
   }
 
   //  ch = getChar(fin);
+//testando rafael
   // teste acertando erros
 
+
+
+  do{
+    std::cout << "gay" << std::endl;
+  }
+  
   return 0;
 }
