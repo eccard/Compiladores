@@ -24,6 +24,6 @@ int main() {
 
   //  ch = getChar(fin);
 //testando novamente
-
+ for(int i;i<n;i++){}
   return 0;
 }
