@@ -23,10 +23,17 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
 
 
     char ch;
-//    char ch2;
     int cont= 0;
     ch= fin.get();
-
+    if ( ch=='=' || ch=='<' || ch=='<' || ch=='>' ||
+         ch=='(' || ch=='[' || ch==']' || ch=='!' ||
+         ch=='+' || ch=='-' || ch=='*' || ch=='/' ||
+         ch==',' ){
+        *col=*col+1;
+        token.col++;
+        token.info[0]= ch;
+        return token;
+    }
     if (ch == ';') {
         token.col++;
         token.info[0]= ch;
@@ -38,24 +45,6 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
         }
         fin.unget();
 
-        return token;
-    }
-    if (ch == '=') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '<') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '>') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
         return token;
     }
     if (ch == ')') {
@@ -72,73 +61,6 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
 
         return token;
     }
-    if (ch == '(') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '[') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == ']') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '!') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '+') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '-') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '*') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == '/') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-    if (ch == ',') {
-        *col=*col+1;
-        token.col++;
-        token.info[0]= ch;
-        return token;
-    }
-
-    //    while(ch == ' ' || ch == '\n') {
-    //        if(ch == ' ' ){
-    ////            token.col++;
-    //        }else{
-    //            *linha=*linha+1;
-    //            *col=0;
-    //            //  std::cout<<*linha<<std::endl;
-    //        }
-    //        ch= fin.get();
-    //    }
-
-
 
     if (ch == ':'){
         *col=*col+1;
@@ -158,10 +80,6 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
 
 
     while(ch == ' ' || ch == '\n') {
-//                if (ch== '\n'){
-//                    *linha=*linha+1;
-//                    *col=0;
-//                }
         ch= fin.get();
     }
 
@@ -188,10 +106,7 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
         }
         ch= fin.get();
     }
-    //    std::cout << "paaaaaaaaaaaaaaaaaaa cont->" << cont<<std::endl;
-
     token.info[cont]='\0';
-    //    token.linha= *linha;
     return token;
 }
 
