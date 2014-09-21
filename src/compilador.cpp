@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 
+//estrutura do token
 typedef struct Token {
   char info[21];
   int col;
@@ -11,105 +13,128 @@ typedef struct Token {
 
 
   
-Token getToken(std::ifstream & fin, int *linha) {
+Token getToken(std::ifstream & fin, int *linha,int *coluna) {
   Token token;
-  token.col=0;
   for (int i=0; i < 21; i++) {
     token.info[i]= 0;  
   }
 
-  
+
   char ch;
   char ch2;
   int cont= 0;
   ch= fin.get();
 
-  if (ch == ';') {
-    token.col++;
-     std::cout<<token.col<<"sss"<<std::endl;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '=') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '<') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '>') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == ')') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '(') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '[') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == ']') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '!') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '+') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '-') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '*') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == '/') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
-  }
-  if (ch == ',') {
-    token.col++;
-    token.info[0]= ch;
-    return token;
+  // if (ch == ';') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '=') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '<') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '>') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == ')') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '(') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '[') {
+  //   *coluna=*coluna+1;
+  //   token.col= *coluna;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == ']') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '!') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '+') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '-') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '*') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == '/') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+  // if (ch == ',') {
+  //   token.col++;
+  //   token.info[0]= ch;
+  //   return token;
+  // }
+
+  if ( ch==';' || ch=='=' || ch=='<' || ch==',' ||
+       ch=='>' || ch=='(' || ch==')' || ch=='[' || 
+       ch==']' || ch=='!' || ch=='+' || ch=='-' || 
+       ch=='*' || ch=='/'){
+    
+    *coluna=*coluna+1;
+     token.col= *coluna;
+     token.col++;
+     token.info[0]= ch;
+     return token;
   }
   while(ch == ' ' || ch == '\n') {
     if(ch == ' ' ){
-      token.col++;
+      *coluna=*coluna+1;
+     token.col= *coluna;
     }else{
       *linha=*linha+1;
-      token.col=0;
+      *coluna=0;
     //  std::cout<<*linha<<std::endl;
     }
     ch= fin.get(); 
   }
   if (ch == ':'){
-        token.info[0]=ch;
-        ch= fin.get(); 
+     *coluna=*coluna+1;
+     token.col= *coluna;
+     token.info[0]=ch;
+     ch= fin.get(); 
     
     if (ch == '='){
+      *coluna=*coluna+1;
+      token.col= *coluna;
       token.info[1]= ch;
     return token;
     }
@@ -125,6 +150,8 @@ Token getToken(std::ifstream & fin, int *linha) {
          ch!=']' && ch!='!' && ch!='+' && ch!='-' && 
          ch!='*' && ch!='/' && ch!=':' && ch!= '\n') {
        token.info[cont]=ch;
+       *coluna=*coluna+1;
+        token.col= *coluna;
       cont++;
     }else {
       fin.unget();
@@ -134,6 +161,7 @@ Token getToken(std::ifstream & fin, int *linha) {
   }
   token.info[cont]='\0';
   token.linha= *linha;
+  std::cout <<token.col<< std::endl;
   return token;
 }
 
@@ -142,10 +170,12 @@ int main() {
   std::ifstream fin("file.lug", std::fstream::in);
   char ch;
   int linha= 1;
+  int coluna= 1;
+
+  Token *tk=(Token*)malloc(sizeof(Token));
   while (fin.good()) {
-    std::cout << getToken(fin, &linha).info<< std::endl;
-    //std::cout << getToken(fin, &linha).linha<< std::endl;
-    std::cout << getToken(fin, &linha).col<< std::endl;
+    *tk=getToken(fin, &linha,&coluna);
+    std::cout << tk->info << " " << tk->linha << " " << tk->col << std::endl;
   }
   
   return 0;
