@@ -4,7 +4,7 @@ const
 type
     vetor = array[15] of integer;
 var
-    A, B, C, D : integer;
+    A, B, C, D : integer;%
     E : vetor;
 function
 integer fatorial(a:integer;)

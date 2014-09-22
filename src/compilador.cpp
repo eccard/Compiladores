@@ -186,7 +186,11 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
     if ( ch=='=' || ch=='<' || ch=='<' || ch=='>' ||
          ch=='(' || ch=='[' || ch==']' || ch=='!' ||
          ch=='+' || ch=='-' || ch=='*' || ch=='/' ||
-         ch==',' ){
+         ch==',' || ch=='#' || ch=='$' || ch=='%' ||
+         ch=='@' || ch=='š' || ch=='¬' || ch=='&' ||
+         ch=='`' || ch=='Ž' || ch=='ª' || ch=='º' ||
+         ch=='§' || ch=='|' || ch=='°' || ch=='~' ||
+         ch=='^'){
         *col=*col+1;
         token.col++;
         token.info[0]= ch;
