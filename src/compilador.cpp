@@ -194,6 +194,7 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
         *col=*col+1;
         token.col++;
         token.info[0]= ch;
+        token.tipo=checkTipoToken(token.info);
         return token;
     }
     if (ch == ';') {
@@ -206,7 +207,7 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
             *col=0;
         }
         fin.unget();
-
+        token.tipo=checkTipoToken(token.info);
         return token;
     }
     if (ch == ')') {
@@ -220,7 +221,7 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
             *col=0;
         }
         fin.unget();
-
+        token.tipo=checkTipoToken(token.info);
         return token;
     }
 
@@ -233,9 +234,11 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
         if (ch == '='){
             token.col++;
             token.info[1]= ch;
+            token.tipo=checkTipoToken(token.info);
             return token;
         }
         fin.unget();
+        token.tipo=checkTipoToken(token.info);
         return token;
     }
 
@@ -258,11 +261,13 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
             fin.unget();
             *col=*col+1;
             token.col=*col;
+            token.tipo=checkTipoToken(token.info);
             return token;
         }
         ch= fin.get();
     }
     token.info[cont]='\0';
+    token.tipo=checkTipoToken(token.info);
     return token;
 }
 
@@ -277,7 +282,6 @@ int main() {
 
     while (fin.good()) {
         *tk=getToken(fin, &linha,&coluna);
-        tk->tipo=checkTipoToken(tk->info);
         std::cout << tk->info << " " << tk->linha << " " << tk->col << " "<< tk->tipo <<std::endl;
     }
     return 0;
