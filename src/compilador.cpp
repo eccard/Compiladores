@@ -31,7 +31,6 @@
 #define MENOS 27 //ok -
 #define ASTERISCO 28 //ok *
 #define BARRA 29 //ok /
-#define PORCENTAGEM 30
 #define EXCLAMACAO 31 //ok !
 #define VARIAVEL 32 //ok var
 #define ACOLCH 33 //ok [
@@ -48,6 +47,12 @@ typedef struct Token {
     int linha;
     int tipo;
 }Token;
+
+typedef struct No{
+    Token token;
+    struct No* filho;
+    struct No* prox;
+}No;
 
 int checkTipoToken(char token[21]){
     int x=0;
@@ -271,18 +276,196 @@ Token getToken(std::ifstream & fin, int *linha,int *col) {
     return token;
 }
 
+// funções do sintatico
+void imprimirLista(No * l){
+    No * r=l;
+    while(r!=NULL){
+        std::cout<< r->token.info <<std::endl;
+        std::cout<< r->token.linha <<std::endl;
+        std::cout<< r->token.tipo<<std::endl;
+        r=r->prox;
+    }
+}
+int altura(No *a)
+{
+    int x =0 ,y =0;
+    if(a==NULL)
+    {
+               return 0;
+    }
+    else
+    {
+               x=altura(a->filho)+1;
+               y=altura(a->prox); // aki pode estar acontecendo um problema
+               if(x>y)
+               {
+                      return x;
+               }
+               else
+               {
+                      return y;
+               }
+    }
+}
+void imprimenotacao(No *a)
+{
+     std::cout <<"("<< std::ends;
+     if(a==NULL)
+     {
+     std::cout <<"-1)"<< std::ends;
+     }
+     if(a!=NULL)
+     {
+                std::cout <<a->token.info<< std::ends;
+                imprimenotacao(a->prox);
+                printf(")");
+                imprimenotacao(a->prox);
+     }
+}
+
+
+void imprimeNivel(No *a,int n)
+{
+       if(a!=NULL)
+       {
+                  if(n==0)
+                  {
+                          fflush(stdout);
+                          printf("%s ",a->token.info);
+                          imprimeNivel(a->prox,n);
+                  }
+                  else
+                  {
+                          imprimeNivel(a->filho,n-1);
+                          imprimeNivel(a->prox,n);
+                  }
+       }
+}
+
+void imprimeLargura(No *a)
+{
+     int h=3;//altura(a);
+     int i;
+
+     for(i=0;i<h;i++)
+     {
+                     imprimeNivel(a,i);
+                     fflush(stdout);
+                     printf("\n");
+     }
+}
+
+No * insereLista(No * l,Token token){
+    No * r=l;
+    No * t=NULL;
+
+    if(l==NULL){
+        l=(No*)malloc(sizeof(No));
+        l->token= token;
+        l->prox=NULL;
+        l->filho=NULL;
+
+        return l;
+    }
+    else{
+        while(r->prox!=NULL){
+            r=r->prox;
+        }
+
+        t=(No*)malloc(sizeof(No));
+        t->token=token;
+        t->prox=NULL;
+        t->filho=NULL;
+        r->prox = t;
+        return l;
+    }
+}
+
+No * corpo(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col)
+{
+    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    strcpy(larv->token.info,"<CORPO>");
+    tk=getToken(fin, linha,col);
+    if(tk.tipo == VARIAVEL || tk.tipo == CONSTANTE || tk.tipo == TIPO ||   tk.tipo == FUNCAO ){
+
+        larv->filho=declaracoes();
+        printf(">> %s <<", t->token);
+        larv->filho->prox=bloco();
+        printf(">> %s <<", t->token);
+        return larv;
+    }
+    else if(tk.tipo == INICIO){
+        larv->filho=bloco();
+        return larv;
+    }
+    else{
+           std::cout << "inicio nao encontrado" <<std::endl;
+            return NULL;
+    }
+
+}
+//No* identificador(std::ifstream & fin,Token tk,int *linha,int *col){
+No* identificador(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
+    No *larv=(No*)malloc(sizeof(No));
+    tk=getToken(fin, linha,col);
+     if(tk.tipo==IDENTIFICADOR){
+        strcpy(larv->token.info,"<IDENTIFICADOR>");
+        larv->filho=insereLista(larv->filho,tk);
+        return larv;
+     }else{
+         std::cout <<"identificador não encontrado" <<std::endl;
+         return NULL;
+     }
+}
+
+
+No* sintatico(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
+    No * arv= NULL;
+    strcpy(tkn.info,"<PROGRAMA>");
+
+    arv=insereLista(arv,tkn); //cabeça da regra
+    tk=getToken(fin, linha,col);
+//    std::cout<< tk.info <<std::endl;
+
+    if(tk.tipo==INICIADOR){
+        arv->filho=insereLista(arv->filho,tk);
+        arv->filho->prox=identificador(fin,tk,tkn,linha,col);
+        tk=getToken(fin, linha,col);
+        if(tk.tipo==PVIRGULA){
+            arv->filho->prox->prox=insereLista(arv->filho->prox->prox,tk);
+//            arv->filho->prox->prox->prox=corpo();
+            return arv;
+        }else{
+            std::cout<< "; não encontrado"<<std::endl;
+            return NULL;
+        }
+    }else{
+            std::cout<< "iniciador não encontrado"<<std::endl;
+            return NULL;
+    }
+}
+
 
 int main() {
     std::ifstream fin("file.lug", std::fstream::in);
-    char ch;
+//    std::ifstream fin("file2.lug", std::fstream::in);
     int linha= 1;
     int coluna=1;
 
-    Token *tk=(Token*)malloc(sizeof(Token));
+//    Token *tk=(Token*)malloc(sizeof(Token));
+    Token tk,tkn;
+    tkn.linha=-1;
+    tkn.col=-1;
+    tkn.tipo=-1;
+//    No *arv=(No*)malloc(sizeof(No));
+     No *arv=NULL;
 
-    while (fin.good()) {
-        *tk=getToken(fin, &linha,&coluna);
-        std::cout << tk->info << " " << tk->linha << " " << tk->col << " "<< tk->tipo <<std::endl;
-    }
+//    while (fin.good()) {
+//        *tk=getToken(fin, &linha,&coluna);
+//        std::cout << tk->info << " " << tk->linha << " " << tk->col << " "<< tk->tipo <<std::endl;
+    arv=sintatico(fin,tk,tkn, &linha,&coluna);
+    imprimeLargura(arv);
+//    }
+
     return 0;
 }
