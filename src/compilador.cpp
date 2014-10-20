@@ -17,6 +17,8 @@ No* parametro(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* nome_numero(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No * funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* indice(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+No * def_var(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+No* constante(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 //No* expressao_logica(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col);
 
 #define INICIADOR 1 //ok program
@@ -390,7 +392,6 @@ int contarNos(No *a){
     if(a==NULL) return 0;
     else
         return 1+ contarNos(a->filho) + contarNos(a->prox);
-
 }
 void setarNumNos(No *a){
     if(a->prox!=NULL){
@@ -436,10 +437,10 @@ No* identificador(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col);
 No * const_valor(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONST_VALOR>");
-    tk=getToken(fin, linha,col);
 
     if(tk.tipo==IDENTIFICADOR){  // o que ele diz de sequencia alfanumerica
         larv->filho=insereLista(larv->filho,tk);
+        tk=getToken(fin, linha,col);
         return larv;
     }
     else{
@@ -450,26 +451,24 @@ No * const_valor(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 
     return larv;
 }
-No* constante(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+
 
 No* constantes(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONSTANTES> ");
 
-    tk=getToken(fin, linha,col);
     if(tk.tipo==IDENTIFICADOR){
         larv->filho=constante(fin,tk,tkn,linha,col);
-
-        tk=getToken(fin, linha,col);
         if (tk.tipo==PVIRGULA){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=constantes(fin,tk,tkn,linha,col);
 
             return larv;
 
         }else{
             std::cout<< "erro na variaveis, falta ;" <<std::endl;
-            return NULL;
+            return larv;
         }
 
     }
@@ -486,8 +485,8 @@ No* constante(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 
          tk=getToken(fin, linha,col);
         if(tk.tipo==IGUAL){
-
             larv->filho->prox= insereLista(larv->filho->prox,tk);
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=const_valor(fin,tk,tkn,linha,col);
             return larv;
         }
@@ -507,8 +506,7 @@ No* numero(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     strcpy(larv->token.info,"<NUMERO>");
     if(tk.tipo==NUMERICO){
         larv->filho=insereLista(larv->filho,tk);
-        std::cout<< "pappa "<< tk.info<< " "<<tk.linha<<std::endl;
-            tk=getToken(fin, linha,col); //acabei de comentar ... ver isso
+        tk=getToken(fin, linha,col); //acabei de comentar ... ver isso
         return larv;
     }
     else{
@@ -521,8 +519,10 @@ No* numero(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 No* tipo_dado(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<TIPO_DADO>");
+
     if(tk.tipo==REAL || tk.tipo==INTEIRO ){
         larv->filho=insereLista(larv->filho,tk);
+        tk=getToken(fin, linha,col);
         return larv;
     }
     if(tk.tipo == VETOR){
@@ -542,7 +542,6 @@ No* tipo_dado(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
                 return larv;
                 }
 
-
             }
 
         }
@@ -550,6 +549,7 @@ No* tipo_dado(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     else{
         if(tk.tipo==IDENTIFICADOR){
             larv->filho=identificador(fin,tk,tkn,linha,col);
+            tk=getToken(fin, linha,col);
             return larv;
         }
         else{
@@ -585,13 +585,11 @@ No * variaveis(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEIS> ");
 
-    tk=getToken(fin, linha,col);
     if(tk.tipo==IDENTIFICADOR){
         larv->filho=variavel(fin,tk,tkn,linha,col);
-
-        tk=getToken(fin, linha,col);
         if (tk.tipo==PVIRGULA){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=variaveis(fin,tk,tkn,linha,col);
             return larv;
 
@@ -679,18 +677,18 @@ No* tipo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 No * nome_funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME_FUNCAO>");
-
-
     larv->filho=tipo_dado(fin,tk,tkn,linha,col);
-    tk=getToken(fin,linha,col); //tirando pra pear antes
+
     if(tk.tipo==IDENTIFICADOR){
         larv->filho->prox=identificador(fin,tk,tkn,linha,col);
         tk=getToken(fin,linha,col);
         if(tk.tipo==APARENTE){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
+            tk=getToken(fin,linha,col);
             larv->filho->prox->prox->prox=variaveis(fin,tk,tkn,linha,col);
             if(tk.tipo==FPARENTE){
                 larv->filho->prox->prox->prox=insereLista(larv->filho->prox->prox->prox,tk);
+                tk=getToken(fin,linha,col);
                 return larv;
             }
         }
@@ -701,8 +699,8 @@ No* bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* senao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<SENAO> ");
-    tkn=tk;
-    tk=getToken(fin, linha,col);
+//    tkn=tk;
+//    tk=getToken(fin, linha,col);
     if(tk.tipo==SENAO){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
@@ -710,7 +708,7 @@ No* senao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         return larv;
     }
     else{
-        tk=tkn;
+//        tk=tkn;
         return larv;
     }
 }
@@ -830,7 +828,6 @@ No* parametros(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 No* valor_2(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VALOR_2>");
-    tk=getToken(fin, linha,col);
 
     if(tk.tipo==APARENTE){
         larv->filho=insereLista(larv->filho,tk);
@@ -849,7 +846,6 @@ No* valor_2(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     }
     else {
         larv->filho=indice(fin,tk,tkn,linha,col);
-
         larv->filho->prox=exp_matematica(fin,tk,tkn,linha,col);
         return larv;
     }
@@ -858,9 +854,9 @@ No* valor_2(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 No* valor(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VALOR>");
-    tk=getToken(fin, linha,col);
     if(tk.tipo==IDENTIFICADOR){
         larv->filho=identificador(fin,tk,tkn,linha,col);
+        tk=getToken(fin, linha,col);
         larv->filho->prox=valor_2(fin,tk,tkn,linha,col);
         return larv;
     }
@@ -877,7 +873,6 @@ No* nome_numero(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     strcpy(larv->token.info,"<NOME_NUMERO> ");
 
     if(tk.tipo==NUMERICO){
-
         larv->filho=numero(fin,tk,tkn,linha,col);
         return larv;
     }
@@ -925,22 +920,20 @@ No* comandos(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<COMANDOS> ");
 
-    tk=getToken(fin, linha,col);
     if((tk.tipo == IDENTIFICADOR) || (tk.tipo == ENQUANTO) || (tk.tipo == SE ) || (tk.tipo ==ESCREVER) || (tk.tipo ==LER)){
         larv->filho=comando(fin,tk,tkn,linha,col);
-        std::cout<<" -- "<<tk.info<<std::endl;
         if (tk.tipo==PVIRGULA){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=comandos(fin,tk,tkn,linha,col);
             return larv;
 
         }else{
-            std::cout<< "erro em <COMANDOS>, falta ;" <<std::endl;
+            std::cout<< "erro em <COMANDOS>, falta ;"<<tk.linha <<std::endl;
             return larv;
         }
     }
     if(tk.tipo==FIM){
-        std::cout<<" ----------- "<<tk.info << " " <<tk.linha<<std::endl;
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         return larv;
@@ -954,6 +947,7 @@ No* comandos(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<COMANDO>");
+
     if(tk.tipo==ENQUANTO){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
@@ -971,6 +965,7 @@ No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
             tk=getToken(fin, linha,col);
             larv->filho->prox->prox->prox=bloco(fin,tk,tkn,linha,col);
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox->prox->prox=senao(fin,tk,tkn,linha,col);
             return larv;
         }else{
@@ -995,13 +990,14 @@ No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         larv->filho=nome(fin,tk,tkn,linha,col);
         if(tk.tipo==ATRIBUIR){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
-            std::cout<<" o token é 1 "<<tk.info <<" "<<tk.linha<<std::endl;
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=valor(fin,tk,tkn,linha,col);
-            std::cout<<" o token é 2 "<<tk.info <<" "<<tk.linha<<std::endl;
             return larv;
         }
-        larv->filho->prox=indice(fin,tk,tkn,linha,col);
+        else{
+            std::cout<< " faltou comando de atribuir em COMANDO - "<< std::endl;
         return larv;
+        }
     }
 }
 No * bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
@@ -1009,6 +1005,7 @@ No * bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     strcpy(larv->token.info,"<BLOCO>");
     if(tk.tipo==INICIO){
         larv->filho=insereLista(larv->filho,tk);
+        tk=getToken(fin, linha,col);
         larv->filho->prox=comandos(fin,tk,tkn,linha,col);
         return larv;
     }
@@ -1016,20 +1013,21 @@ No * bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         larv->filho=comando(fin,tk,tkn,linha,col);
         if(tk.tipo==PVIRGULA){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
+            tk=getToken(fin, linha,col);
             return larv;
         }
         else{
-            std::cout<<" <BLOCO> ; não encontrado"<< std::endl;
+            std::cout<<" <BLOCO> ; não encontrado "<<tk.linha<< std::endl;
+            return larv;
         }
-        return larv;
     }
 }
 
-No * def_var(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+
 No * bloco_funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<BLOCO_FUNCAO>");
-    tk=getToken(fin, linha,col);
+
     if(tk.tipo==VARIAVEL){
         larv->filho=def_var(fin,tk,tkn,linha,col);
         larv->filho->prox=bloco(fin,tk,tkn,linha,col);
@@ -1057,8 +1055,8 @@ No * funcoes(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 }
 No * funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
-
     strcpy(larv->token.info,"<FUNCAO>");
+
     larv->filho=nome_funcao(fin,tk,tkn,linha,col);
 
 //    Simbolo smb(larv->filho->filho->prox->filho->token.info);
@@ -1082,9 +1080,9 @@ No * funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 }
 No * def_func(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    strcpy(larv->token.info,"<DEF_FUNC>");
 
     if(tk.tipo == FUNCAO ){
-        strcpy(larv->token.info,"<DEF_FUNC>");
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         larv->filho->prox=funcao(fin,tk,tkn,linha,col);
@@ -1092,7 +1090,7 @@ No * def_func(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         return larv;
     }
     else{
-        std::cout<< "erro na definição de funçao, falta functioin" <<std::endl;
+//        std::cout<< "erro na definição de funçao, falta functioin" <<std::endl;
         return larv;
     }
 
@@ -1100,15 +1098,15 @@ No * def_func(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 
 No * def_tipo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    strcpy(larv->token.info,"<DEF_TIPO>");
 
     if(tk.tipo == TIPO ){
-        strcpy(larv->token.info,"<DEF_TIPO>");
         larv->filho=insereLista(larv->filho,tk);
 
         tk=getToken(fin, linha,col);
         if(tk.tipo==IDENTIFICADOR){
             larv->filho->prox=tipo(fin,tk,tkn,linha,col);
-            tk=getToken(fin, linha,col);
+//            tk=getToken(fin, linha,col);
             if(tk.tipo == PVIRGULA){
 
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
@@ -1126,7 +1124,7 @@ No * def_tipo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         }
     }
     else{
-        std::cout<< "erro na definição de tipo, falta tipo" <<std::endl;
+//        std::cout<< "erro na definição de tipo, falta tipo" <<std::endl;
         return larv;
     }
 
@@ -1134,17 +1132,17 @@ No * def_tipo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 
 No * def_var(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    strcpy(larv->token.info,"<DEF_VAR>");
 
     if(tk.tipo == VARIAVEL ){
-        strcpy(larv->token.info,"<DEF_VAR>");
         larv->filho=insereLista(larv->filho,tk);
-
         tk=getToken(fin, linha,col);
         if(tk.tipo==IDENTIFICADOR){
             larv->filho->prox=variavel(fin,tk,tkn,linha,col);
-            tk=getToken(fin, linha,col);
+//            tk=getToken(fin, linha,col);
             if(tk.tipo == PVIRGULA){
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
+                tk=getToken(fin, linha,col);
                 larv->filho->prox->prox->prox=variaveis(fin,tk,tkn,linha,col);
                 return larv;
             }
@@ -1166,10 +1164,10 @@ No * def_var(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
 
 No * def_const(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    strcpy(larv->token.info,"<DEF_CONST>");
 
     if(tk.tipo == CONSTANTE ){
 
-        strcpy(larv->token.info,"<DEF_CONST>");
         larv->filho=insereLista(larv->filho,tk);
 
         tk=getToken(fin, linha,col);
@@ -1177,6 +1175,7 @@ No * def_const(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
             larv->filho->prox=constante(fin,tk,tkn,linha,col);
             if(tk.tipo == PVIRGULA){
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
+                tk=getToken(fin, linha,col);
                 larv->filho->prox->prox->prox=constantes(fin,tk,tkn,linha,col);
 
                 return larv;
@@ -1193,7 +1192,7 @@ No * def_const(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     }
 
     else{
-        std::cout<< "erro na definição de constante, falta const" <<std::endl;
+//        std::cout<< "erro na definição de constante, falta const" <<std::endl;
         return larv;
     }
 
@@ -1203,66 +1202,20 @@ No * declaracoes(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){ 
 
     No *larv =(No*)malloc(sizeof(No));
     strcpy(larv->token.info, "<DECLARACOES>");
-    if(tk.tipo==CONSTANTE) {
-        larv->filho=def_const(fin,tk,tkn,linha,col);
-        if(tk.tipo==TIPO){
-            larv->filho->prox=def_tipo(fin,tk,tkn,linha,col);
-            if(tk.tipo==VARIAVEL){
-                larv->filho->prox->prox=def_var(fin,tk,tkn,linha,col);
-                if(tk.tipo==FUNCAO){
-                    larv->filho->prox->prox->prox=def_func(fin,tk,tkn,linha,col);
-                    return larv;
-                }
-            }
-        }
-        if(tk.tipo==VARIAVEL){
-            larv->filho->prox=def_var(fin,tk,tkn,linha,col);
-            if(tk.tipo==FUNCAO){
-                larv->filho->prox->prox=def_func(fin,tk,tkn,linha,col);
-                return larv;
-            }
-            return larv;
-        }
-        if(tk.tipo==FUNCAO){
-            larv->filho->prox=def_func(fin,tk,tkn,linha,col);
-            return larv;
-        }
-    }
-    // agora começanco com tipo
-    if(tk.tipo==TIPO){
-        larv->filho=def_tipo(fin,tk,tkn,linha,col);
-        if(tk.tipo==VARIAVEL){
-            larv->filho->prox=def_var(fin,tk,tkn,linha,col);
-            if(tk.tipo==FUNCAO){
-                larv->filho->prox->prox=def_func(fin,tk,tkn,linha,col);
-                return larv;
-            }
-        }
-        if(tk.tipo==FUNCAO){
-            larv->filho->prox=def_func(fin,tk,tkn,linha,col);
-            return larv;
-        }
-    }
-    // começando com variavel
-    if(tk.tipo==VARIAVEL){
-        larv->filho=def_var(fin,tk,tkn,linha,col);
-        if(tk.tipo==FUNCAO){
-            larv->filho->prox=def_func(fin,tk,tkn,linha,col);
-            return larv;
-        }
-        else
-            return larv;
-    }
+
+    larv->filho=def_const(fin,tk,tkn,linha,col);
+    larv->filho->prox=def_tipo(fin,tk,tkn,linha,col);
+    larv->filho->prox->prox=def_var(fin,tk,tkn,linha,col);
+    larv->filho->prox->prox->prox=def_func(fin,tk,tkn,linha,col);
     return larv;
 }
-
 No* corpo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CORPO>");
-    tk=getToken(fin, linha,col);
-    if(tk.tipo == TIPO || tk.tipo == CONSTANTE || tk.tipo == VARIAVEL || tk.tipo == FUNCAO ){
 
+    if(tk.tipo == TIPO || tk.tipo == CONSTANTE || tk.tipo == VARIAVEL || tk.tipo == FUNCAO ){
         larv->filho=declaracoes(fin,tk,tkn,linha,col); // estou akiii
+//        std::cout<< " saindo declaraçoes - para bloco "<<tk.info<<std::endl;
         larv->filho->prox=bloco(fin,tk,tkn,linha,col);
         return larv;
     }
@@ -1275,7 +1228,7 @@ No* identificador(std::ifstream &fin,Token tk,Token tkn, int *linha,int *col){
     No *larv=(No*)malloc(sizeof(No));
     if(tk.tipo==IDENTIFICADOR){
         strcpy(larv->token.info,"<IDENTIFICADOR>");
-        if(!procuraSimbolo(smbs,tk.info)) smbs.push_back(Simbolo(tk.info)); // colocando na "talela" de simbolos
+//        if(!procuraSimbolo(smbs,tk.info)) smbs.push_back(Simbolo(tk.info)); // colocando na "talela" de simbolos
         larv->filho=insereLista(larv->filho,tk);
         return larv;
     }else{
@@ -1287,9 +1240,10 @@ No* identificador(std::ifstream &fin,Token tk,Token tkn, int *linha,int *col){
 
 No* sintatico(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
     No * arv= NULL;
-    strcpy(tkn.info,"<PROGRAMA>");
-    arv=insereLista(arv,tkn); //cabeça da regra
+    strcpy(tk.info,"<PROGRAMA>");
+    arv=insereLista(arv,tk); //cabeça da regra
     arv->num=0;
+
     tk=getToken(fin, linha,col);
     if(tk.tipo==INICIADOR){
         arv->filho=insereLista(arv->filho,tk);
@@ -1299,6 +1253,7 @@ No* sintatico(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
             tk=getToken(fin, linha,col);
             if(tk.tipo==PVIRGULA){
                 arv->filho->prox->prox=insereLista(arv->filho->prox->prox,tk);
+                tk=getToken(fin, linha,col);
                 arv->filho->prox->prox->prox=corpo(fin,tk,tkn,linha,col);
                 return arv;
             }else{
@@ -1318,9 +1273,9 @@ No* sintatico(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
 
 
 int main(int argc, char **argv) {
-        std::ifstream fin("file.lug", std::fstream::in);
+//        std::ifstream fin("file.lug", std::fstream::in);
 //    std::ifstream fin("file2.lug", std::fstream::in);
-//    std::ifstream fin("file3.lug", std::fstream::in);
+    std::ifstream fin("file3.lug", std::fstream::in);
     int linha= 1;
     int coluna=1;
 
@@ -1356,11 +1311,14 @@ int main(int argc, char **argv) {
 //    }
 
     arv=sintatico(fin,tk,tkn, &linha,&coluna);
+//    imprimeLargura(arv);
+    setarNumNos(arv);
+//    impprimeGen(arv);
     a->setRaiz(arv);
 
     std::cout<< " " <<std::endl;
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
-    setarNumNos(a->getRaiz());
+//    setarNumNos(a->getRaiz());
 
 //    listarSimbolos(smbs);
     a->show();
