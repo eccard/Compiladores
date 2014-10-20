@@ -1,0 +1,15 @@
+program progtest;
+const
+    tam=1;
+var
+   A, B, C, D : integer;
+   E : vetor;
+begin
+        i := 1;
+        result := 1;
+        while i < a
+        begin
+            result:=result*i;
+            i:=i+1;
+        end;
+end
