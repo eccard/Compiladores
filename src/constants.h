@@ -6,7 +6,7 @@ namespace cte {
 const int INICIADOR =1; //ok program
 const int FUNCAO =2; //ok function
 const int IDENTIFICADOR =3; //
-const int constTANTE =4; //ok constt
+const int CONSTANTE =4; //ok constt
 const int TIPO =5; //ok type
 const int PVIRGULA =6; //ok ;
 const int IGUAL =7; //ok =
