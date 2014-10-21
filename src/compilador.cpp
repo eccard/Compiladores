@@ -3,7 +3,8 @@
 #include <fstream>
 #include <string.h>
 
-#include<QtGui/QApplication>
+//#include<QtGui/QApplication>
+#include<QApplication>
 #include "Arvore.h"
 #include "constants.h"
 #include "simbolo.h"
@@ -19,6 +20,7 @@ No * funcao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* indice(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No * def_var(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* constante(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 //No* expressao_logica(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col);
 
 #define INICIADOR 1 //ok program
@@ -618,6 +620,9 @@ No* variavel(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
             larv->filho->prox->prox->prox=tipo_dado(fin,tk,tkn,linha,col);
             return larv;
         }
+        else{
+            std::cout<<"erro em variavel, : não encontrado.   encontrado "<<tk.info<<" "<<tk.linha<<std::endl;
+        }
 
     }
     else{
@@ -699,8 +704,7 @@ No* bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
 No* senao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<SENAO> ");
-//    tkn=tk;
-//    tk=getToken(fin, linha,col);
+    tk=getToken(fin, linha,col);
     if(tk.tipo==SENAO){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
@@ -708,7 +712,6 @@ No* senao(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         return larv;
     }
     else{
-//        tk=tkn;
         return larv;
     }
 }
@@ -915,7 +918,7 @@ No* nome(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     return larv;
 }
 
-No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col);
+
 No* comandos(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<COMANDOS> ");
@@ -965,7 +968,6 @@ No* comando(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
             tk=getToken(fin, linha,col);
             larv->filho->prox->prox->prox=bloco(fin,tk,tkn,linha,col);
-            tk=getToken(fin, linha,col);
             larv->filho->prox->prox->prox->prox=senao(fin,tk,tkn,linha,col);
             return larv;
         }else{
@@ -1007,13 +1009,15 @@ No * bloco(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         larv->filho->prox=comandos(fin,tk,tkn,linha,col);
+//        std::cout<<" #########- "<<tk.info<<" "<<tk.linha<<" "<<tk.col<<std::endl;
         return larv;
     }
     else{
         larv->filho=comando(fin,tk,tkn,linha,col);
         if(tk.tipo==PVIRGULA){
+//            std::cout<<" ####### ;"<<" "<<tk.linha<<" "<<tk.col<<std::endl;
             larv->filho->prox=insereLista(larv->filho->prox,tk);
-            tk=getToken(fin, linha,col);
+//            tk=getToken(fin, linha,col);
             return larv;
         }
         else{
@@ -1108,7 +1112,6 @@ No * def_tipo(std::ifstream & fin,Token &tk,Token tkn, int *linha,int *col){
             larv->filho->prox=tipo(fin,tk,tkn,linha,col);
 //            tk=getToken(fin, linha,col);
             if(tk.tipo == PVIRGULA){
-
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
                 larv->filho->prox->prox->prox=tipos(fin,tk,tkn,linha,col);
                 return larv;
@@ -1275,7 +1278,8 @@ No* sintatico(std::ifstream & fin,Token tk,Token tkn, int *linha,int *col){
 int main(int argc, char **argv) {
 //        std::ifstream fin("file.lug", std::fstream::in);
 //    std::ifstream fin("file2.lug", std::fstream::in);
-    std::ifstream fin("file3.lug", std::fstream::in);
+//    std::ifstream fin("file3.lug", std::fstream::in);
+        std::ifstream fin("file4.lug", std::fstream::in);
     int linha= 1;
     int coluna=1;
 
@@ -1311,17 +1315,14 @@ int main(int argc, char **argv) {
 //    }
 
     arv=sintatico(fin,tk,tkn, &linha,&coluna);
-//    imprimeLargura(arv);
-    setarNumNos(arv);
+//    setarNumNos(arv);
 //    impprimeGen(arv);
     a->setRaiz(arv);
-
-    std::cout<< " " <<std::endl;
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
-//    setarNumNos(a->getRaiz());
+    setarNumNos(a->getRaiz());
+    a->show();
 
 //    listarSimbolos(smbs);
-    a->show();
 
 
 
@@ -1332,3 +1333,4 @@ int main(int argc, char **argv) {
 //        std::cout<<"sou sortudoo"<< std::endl;
     return app.exec();
 }
+//funcao bloco depois do PV, ultimo erro
