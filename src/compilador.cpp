@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string.h>
 
-//#include<QtGui/QApplication>
+//#include<QApplication>
 #include<QApplication>
 #include "Arvore.h"
 #include "constants.h"
@@ -355,7 +355,7 @@ No * insereLista(No * l,Token token){
 
 
 
-
+//falta tratar erro
 No * const_valor(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONST_VALOR>");
@@ -369,11 +369,16 @@ No * const_valor(std::ifstream & fin,Token &tk, int *linha,int *col){
         larv->filho=nome_numero(fin,tk,linha,col);
         larv->filho->prox=exp_matematica(fin,tk,linha,col);
         return larv;
+
     }
 
     return larv;
 }
 
+
+void erro(char tag[20], char info[10]){
+    std::cout<< "erro em "<<tag<<", falta "<<info<<std::endl;
+}
 
 No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
@@ -389,7 +394,7 @@ No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
 
         }else{
-            std::cout<< "erro na variaveis, falta ;" <<std::endl;
+            erro(";",larv->token.info);
             return larv;
         }
 
@@ -413,12 +418,14 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
         }
         else{
-            std::cout<< "erro em <CONSTANTE>, falta =" <<std::endl;
+            erro("=",larv->token.info);
+            //std::cout<< "erro em <CONSTANTE>, falta =" <<std::endl;
             return larv;
         }
     }
     else{
-        std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
+        erro("IDENTIFICADOR",larv->token.info);
+        //std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
         return larv;
     }
 
@@ -432,7 +439,8 @@ No* numero(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
     else{
-        std::cout<< " número não encontrado" << std::endl;
+        erro("numero",larv->token.info);
+        //std::cout<< " número não encontrado" << std::endl;
         return NULL;
     }
 
@@ -467,17 +475,17 @@ No* tipo_dado(std::ifstream & fin,Token &tk, int *linha,int *col){
             }
 
         }
-    }
-    else{
-        if(tk.tipo==cte::IDENTIFICADOR){
+    }else{
+         if(tk.tipo==cte::IDENTIFICADOR){
             larv->filho=identificador(fin,tk,linha,col);
             tk=getToken(fin, linha,col);
             return larv;
-        }
-        else{
-            std::cout<< "identificador não encontrado"<<std::endl;
+        }else{
+            erro("o tipo especificado",larv->token.info);
+            //std::cout<< "identificador não encontrado"<<std::endl;
             return larv;
         }
+
     }
 
 }
@@ -495,7 +503,8 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col){
             larv->filho->prox->prox=lista_id(fin,tk,linha,col);
             return larv;
     }else{
-            std::cout<< "identificador não encontrado em lista_id"<<std::endl;
+            erro(",",larv->token.info);
+            //std::cout<< "identificador não encontrado em lista_id"<<std::endl;
             return NULL;
         }
 
@@ -516,7 +525,8 @@ No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
 
         }else{
-            std::cout<< "erro na variaveis, falta ;" <<std::endl;
+            erro(";",larv->token.info);
+            //std::cout<< "erro na variaveis, falta ;" <<std::endl;
             return larv;
         }
 
@@ -528,7 +538,7 @@ No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col){
 No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEL>");
-    //    tk=getToken(fin, linha,col);
+    //tk=getToken(fin, linha,col);
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
         tk=getToken(fin, linha,col);
@@ -539,14 +549,14 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col){
             tk=getToken(fin, linha,col);
             larv->filho->prox->prox->prox=tipo_dado(fin,tk,linha,col);
             return larv;
-        }
-        else{
-            std::cout<<"erro em variavel, : não encontrado.   encontrado "<<tk.info<<" "<<tk.linha<<std::endl;
+        }else{
+            erro(":",larv->token.info);
+            //std::cout<<"erro em variavel, : não encontrado.   encontrado "<<tk.info<<" "<<tk.linha<<std::endl;
         }
 
-    }
-    else{
-        std::cout<< "identificador não encontrado"<<std::endl;
+    }else{
+        erro("IDENTIFICADOR",larv->token.info);
+        //std::cout<< "identificador não encontrado"<<std::endl;
         return NULL;
     }
 }
@@ -567,7 +577,8 @@ No * tipos(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
 
         }else{
-            std::cout<< "erro na variaveis, falta ;" <<std::endl;
+            erro(";",larv->token.info);
+            //std::cout<< "erro na variaveis, falta ;" <<std::endl;
             return larv;
         }
 
@@ -589,12 +600,14 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
         }
         else{
-            std::cout<< "erro em <TIPO>, falta =" <<std::endl;
+            erro("=",larv->token.info);
+            //std::cout<< "erro em <TIPO>, falta =" <<std::endl;
             return larv;
         }
     }
     else{
-        std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
+        erro("IDENTIFICADOR",larv->token.info);
+        //std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
         return larv;
     }
 
@@ -616,6 +629,15 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
                 tk=getToken(fin,linha,col);
                 return larv;
             }
+            else{
+                erro(")",larv->token.info);
+                return larv;
+            }
+        }
+        else{
+            erro("(",larv->token.info);
+            return larv;
+
         }
     }
     return larv;
@@ -762,7 +784,8 @@ No* valor_2(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
         }
         else{
-            std::cout<<"erro em valor_2, FALTOU fechar colchetes  )"<<std::endl;
+            //std::cout<<"erro em valor_2, FALTOU fechar colchetes  )"<<std::endl;
+            erro(")",larv->token.info);
             return larv;
 
         }
@@ -809,7 +832,8 @@ No* nome_numero(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 
-No* indice(std::ifstream & fin,Token &tk, int *linha,int *col){
+No*
+indice(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<INDICE> ");
     if(tk.tipo==cte::ACOLCH){
@@ -820,6 +844,9 @@ No* indice(std::ifstream & fin,Token &tk, int *linha,int *col){
         if(tk.tipo==cte::FCOLCH){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
             tk=getToken(fin, linha,col);
+            return larv;
+        }else{
+            erro("]",larv->token.info);
             return larv;
         }
 
@@ -853,6 +880,7 @@ No* comandos(std::ifstream & fin,Token &tk, int *linha,int *col){
 
         }else{
             std::cout<< "erro em <COMANDOS>, falta ;"<<tk.linha <<std::endl;
+            erro(";",larv->token.info);
             return larv;
         }
     }
@@ -891,7 +919,9 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
             larv->filho->prox->prox->prox->prox=senao(fin,tk,linha,col);
             return larv;
         }else{
-            std::cout<<" erro <COMANDO> faltou then"<<std::endl;
+            //std::cout<<" erro <COMANDO> faltou then"<<std::endl;
+            erro("then",larv->token.info);
+            return larv;
         }
     }
     else
@@ -938,7 +968,8 @@ No * bloco(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
         }
         else{
-            std::cout<<" <BLOCO> ; não encontrado "<<tk.linha<< std::endl;
+            //std::cout<<" <BLOCO> ; não encontrado "<<tk.linha<< std::endl;
+            erro(";",larv->token.info);
             return larv;
         }
     }
@@ -1033,12 +1064,14 @@ No * def_tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                std::cout<< "erro em def_tipo, falta ;" <<std::endl;
-                            return larv;
+                erro(";",larv->token.info);
+                //std::cout<< "erro em def_tipo, falta ;" <<std::endl;
+                return larv;
             }
             return larv;
         }else{
-            std::cout<< "identificador não encontrado"<<std::endl;
+            erro("IDENTIFICADOR",larv->token.info);
+            //std::cout<< "identificador não encontrado"<<std::endl;
             return larv;
         }
     }
@@ -1064,12 +1097,14 @@ No * def_var(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                std::cout<< "erro em def_var, falta ;" <<std::endl;
+                erro(";",larv->token.info);
+                //std::cout<< "erro em def_var, falta ;" <<std::endl;
                 return larv;
             }
 //            return larv;
         }else{
-            std::cout<< "identificador não encontrado"<<std::endl;
+            erro("IDENTIFICADOR",larv->token.info);
+            //std::cout<< "identificador não encontrado"<<std::endl;
             return NULL;
         }
     }
@@ -1098,12 +1133,14 @@ No * def_const(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                std::cout<< "erro em def_const, falta ;" <<std::endl;
+                erro(";",larv->token.info);
+                //std::cout<< "erro em def_const, falta ;" <<std::endl;
                 return larv;
             }
         }
         else{
-            std::cout<< "identificador não encontrado"<<std::endl;
+            erro("IDENTIFICADOR",larv->token.info);
+            //std::cout<< "identificador não encontrado"<<std::endl;
             return larv;
         }
     }
@@ -1147,41 +1184,44 @@ No* identificador(std::ifstream &fin,Token tk, int *linha,int *col){
         larv->filho=insereLista(larv->filho,tk);
         return larv;
     }else{
-        std::cout <<"identificador não encontrado" <<std::endl;
+        //std::cout <<"identificador não encontrado" <<std::endl;
         return NULL;
     }
 }
 
 
 No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
-    No * arv= NULL;
+    No * larv= NULL;
     strcpy(tk.info,"<PROGRAMA>");
-    arv=insereLista(arv,tk); //cabeça da regra
-    arv->num=0;
+    larv=insereLista(larv,tk); //cabeça da regra
+    larv->num=0;
 
     tk=getToken(fin, linha,col);
     if(tk.tipo==cte::INICIADOR){
-        arv->filho=insereLista(arv->filho,tk);
+        larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
-            arv->filho->prox=identificador(fin,tk,linha,col);
+            larv->filho->prox=identificador(fin,tk,linha,col);
             tk=getToken(fin, linha,col);
             if(tk.tipo==cte::PVIRGULA){
-                arv->filho->prox->prox=insereLista(arv->filho->prox->prox,tk);
+                larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
                 tk=getToken(fin, linha,col);
-                arv->filho->prox->prox->prox=corpo(fin,tk,linha,col);
-                return arv;
+                larv->filho->prox->prox->prox=corpo(fin,tk,linha,col);
+                return larv;
             }else{
-                std::cout<< "; não encontrado"<<std::endl;
+                //std::cout<< "; não encontrado"<<std::endl;
+                erro(";",larv->token.info);
                 return NULL;
             }
         }
         else{
-                std::cout<< "identificador não encontrado"<<std::endl;
+                erro("IDENTIFICADOR",larv->token.info);
+                //std::cout<< "identificador não encontrado"<<std::endl;
                 return NULL;
         }
     }else{
-        std::cout<< "iniciador não encontrado"<<std::endl;
+        erro("INICIADOR",larv->token.info);
+        //std::cout<< "iniciador não encontrado"<<std::endl;
         return NULL;
     }
 }
@@ -1191,7 +1231,7 @@ int main(int argc, char **argv) {
 //        std::ifstream fin("file.lug", std::fstream::in);
 //    std::ifstream fin("file2.lug", std::fstream::in);
 //    std::ifstream fin("file3.lug", std::fstream::in);
-        std::ifstream fin("file4.lug", std::fstream::in);
+        std::ifstream fin("file3.lug", std::fstream::in);
     int linha= 1;
     int coluna=1;
 

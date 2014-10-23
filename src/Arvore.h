@@ -1,7 +1,7 @@
 #ifndef ARVORE_H
 #define ARVORE_H
 #include <iostream>
-#include <QtGui/QGraphicsView>
+#include <QGraphicsView>
 #include <QTextStream>
 #include <QProcess>
 
