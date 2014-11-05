@@ -3,33 +3,36 @@
 #include <iostream>
 #include <string>
 #include<vector>
-#include "Arvore.h"
+//#include "Arvore.h"
 
 class Simbolo
 {
 public:
-    Simbolo(std::string nome);
-    std::string nome;
-    std::string tipo;
-    std::string parametro;
+    Simbolo();
+    Simbolo(char nome[21],char scopo[21]);
+    Simbolo(char nome[21],char scopo[21],char tipo[21]);
+    char nome[21];
+    char scopo[21];
+    char tipo[21];
 
-
-
-    std::string getNome();
-    std::string getTipo();
-    std::string getParametro();
-    void setNome(std::string nome);
-    void sedtTipo(std::string tipo);
-    void setParametro(std::string param);
-
+    char* getNome();
+    char* getTipo();
+    char* getScopo();
     void print();
-    void listarParametro();
+    ~Simbolo();
 private:
+public:
+    void setNome(char nome[21]);
+    void setTipo(char tipo[21]);
+    void setEscopo(char escopo[21]);
+
 
 };
 
-int procuraSimbolo(std::vector<Simbolo> &simbs,std::string nome);
-int possuifuncao(std::vector<Simbolo> &simbs,std::string nome);
-void listarSimbolos(std::vector<Simbolo> &simbs);
-
+//int existeNomeEmEscopo(std::string escopo);
+int existeNomeEmEscopo(std::vector<Simbolo*> &simbs,char scopo[21],char nome[21] );
+int procuraSimbolo(std::vector<Simbolo*> &simbs,char nome[21]);
+//int possuifuncao(std::vector<Simbolo> &simbs,std::string nome);
+void listarSimbolos(std::vector<Simbolo*> &simbs);
+void setTipoArraySimbolo(std::vector<Simbolo*> &simbs_var,char tipo[21]);
 #endif // SIMBOLO_H

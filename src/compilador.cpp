@@ -22,7 +22,14 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* comando(std::ifstream & fin,Token &tk, int *linha,int *col);
 
 int QNTNOGLOB=0;
-std::vector<Simbolo> smbs;
+std::vector<Simbolo*> smbs;
+std::vector<Simbolo*> smbs_var;
+char regra[21];
+char scopo[21]="global";
+//strcpy(scopo,"global");
+char stipo[21];
+//std::string ss;
+
 
 int checkTipoToken(char token[21]){
     int x=0;
@@ -409,6 +416,8 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
     strcpy(larv->token.info,"<CONSTANTE>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
+        if(!existeNomeEmEscopo(smbs,scopo,tk.info))
+            smbs.push_back(new Simbolo(tk.info,scopo,"const"));
 
          tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IGUAL){
@@ -498,8 +507,10 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho->prox=identificador(fin,tk,linha,col);
-        tk=getToken(fin, linha,col);
+            larv->filho->prox=identificador(fin,tk,linha,col);
+            if(!existeNomeEmEscopo(smbs,scopo,tk.info) && !existeNomeEmEscopo(smbs_var,scopo,tk.info))
+                smbs_var.push_back(new Simbolo(tk.info,scopo));
+            tk=getToken(fin, linha,col);
             larv->filho->prox->prox=lista_id(fin,tk,linha,col);
             return larv;
     }else{
@@ -541,12 +552,22 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col){
     //tk=getToken(fin, linha,col);
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
+//        if(!existeNomeEmEscopo(smbs,scopo,string(tk.info)) && !existeNomeEmEscopo(smbs_var,scopo,string(tk.info))){
+
+        if(!existeNomeEmEscopo(smbs_var,scopo,tk.info)){
+            smbs_var.push_back(new Simbolo(tk.info,scopo));
+        }
         tk=getToken(fin, linha,col);
         larv->filho->prox = lista_id(fin,tk,linha,col);
 
         if(tk.tipo==cte::DOISPONTOS){
             larv->filho->prox->prox= insereLista(larv->filho->prox->prox,tk);
             tk=getToken(fin, linha,col);
+
+            setTipoArraySimbolo(smbs_var,tk.info);// colocar o tipo em smbs_var ...
+            smbs.insert(smbs.end(),smbs_var.begin(),smbs_var.end()); // linha milagrosa !!! kkkk
+            smbs_var.clear();
+
             larv->filho->prox->prox->prox=tipo_dado(fin,tk,linha,col);
             return larv;
         }else{
@@ -591,6 +612,10 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
     strcpy(larv->token.info,"<TIPO>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
+        if(!existeNomeEmEscopo(smbs,scopo,tk.info) && !existeNomeEmEscopo(smbs,"global",tk.info))
+            smbs.push_back(new Simbolo("<TIPO>",scopo,tk.info));
+        else
+            std::cout<<" erro semantico tipo ja declarado"<<std::endl;
          tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IGUAL){
             larv->filho->prox= insereLista(larv->filho->prox,tk);
@@ -619,6 +644,8 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
 
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho->prox=identificador(fin,tk,linha,col);
+//        scopo=tk.info;
+        strcpy(scopo,tk.info);
         tk=getToken(fin,linha,col);
         if(tk.tipo==cte::APARENTE){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
@@ -1180,7 +1207,6 @@ No* identificador(std::ifstream &fin,Token tk, int *linha,int *col){
     No *larv=(No*)malloc(sizeof(No));
     if(tk.tipo==cte::IDENTIFICADOR){
         strcpy(larv->token.info,"<IDENTIFICADOR>");
-//        if(!procuraSimbolo(smbs,tk.info)) smbs.push_back(Simbolo(tk.info)); // colocando na "talela" de simbolos
         larv->filho=insereLista(larv->filho,tk);
         return larv;
     }else{
@@ -1228,10 +1254,10 @@ No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
 
 
 int main(int argc, char **argv) {
-//        std::ifstream fin("file.lug", std::fstream::in);
+        std::ifstream fin("file.lug", std::fstream::in);
 //    std::ifstream fin("file2.lug", std::fstream::in);
 //    std::ifstream fin("file3.lug", std::fstream::in);
-        std::ifstream fin("file3.lug", std::fstream::in);
+//        std::ifstream fin("file3.lug", std::fstream::in);
     int linha= 1;
     int coluna=1;
 
@@ -1241,19 +1267,6 @@ int main(int argc, char **argv) {
     view.setRenderHints(QPainter::SmoothPixmapTransform);
     Arvore* a = new Arvore();
     a->init(&scene, &view);
-
-//    Simbolo smb = Simbolo("test");
-//    Simbolo smb2 = Simbolo("test2");
-//    smbs.push_back(smb);
-//    smb.setNome("tetetete");
-//    smbs.push_back(smb);
-
-//    cout<< smbs.at(0).getNome()<<endl;
-//    cout<< smbs.at(1).getNome()<<endl;
-//    smbs.at(0).print();
-//    smbs.at(1).print();
-//    cout<< procuraSimbolo(smbs,"test");
-
 
     Token tk;
     No *arv=NULL;
@@ -1267,6 +1280,7 @@ int main(int argc, char **argv) {
 //    setarNumNos(arv);
 //    impprimeGen(arv);
     a->setRaiz(arv);
+    listarSimbolos(smbs);
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
     setarNumNos(a->getRaiz());
     a->show();
