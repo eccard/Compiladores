@@ -9,7 +9,11 @@ CONFIG += qt gui
 SOURCES += \
     src/compilador.cpp \
     src/Arvore.cpp \
-    src/simbolo.cpp
+    src/simbolo.cpp \
+    src/simbolotipo.cpp \
+    src/simbolofuncao.cpp \
+    src/simboloconst.cpp \
+    src/simboloparam.cpp
 
 #include(deployment.pri)
 #qtcAddDeployment()
@@ -24,6 +28,10 @@ DESTDIR = $$PWD
 HEADERS += \
     src/constants.h \
     src/Arvore.h \
-    src/simbolo.h
+    src/simbolo.h \
+    src/simbolotipo.h \
+    src/simbolofuncao.h \
+    src/simboloconst.h \
+    src/simboloparam.h
 
 FORMS    +=

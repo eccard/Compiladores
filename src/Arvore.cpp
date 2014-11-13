@@ -94,7 +94,7 @@ void Arvore::show(){
     QByteArray data;
     QPixmap pixmap = QPixmap();
 
-    while(p->waitForReadyRead(500)){
+    while(p->waitForReadyRead(1600)){
         data.append(p->readAll());
     }
 
