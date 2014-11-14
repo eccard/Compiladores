@@ -1,7 +1,7 @@
 program funcoes;
 const
     TAM = 10;
-    test = 3-1;
+    TAM = 3-1;
 type
      vetor = array[15] of integer;
 var

@@ -4,6 +4,9 @@ SimboloFuncao::SimboloFuncao(char nome[21],char scopo[21],char classe[21],char t
     :Simbolo(nome,scopo,classe,tipo){
     this->qnt_params=qnt_params;
 }
+SimboloFuncao::SimboloFuncao(char nome[21],char scopo[21],char classe[21])
+    :Simbolo(nome,scopo,classe){
+}
 
 int SimboloFuncao::getQnt_Params(){
     return this->qnt_params;
