@@ -419,6 +419,9 @@ No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
 }
+double getConst_valor(No *larv){
+    double total;
+}
 
 No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
@@ -435,7 +438,8 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
             larv->filho->prox->prox=const_valor(fin,tk,linha,col);
             // aki que vou jogar essa constante na tabela de simbolos
             if(!existeNomeEmEscopo(smbs,escopo,iden)){
-                smbs.push_back(new SimboloConst(iden,escopo,"const","int",1));
+//                std::cout<< "---------"<<larv->filho->prox->prox->filho->filho->filho->token.info<<std::endl;
+                smbs.push_back(new SimboloConst(iden,escopo,"const","int",atol(larv->filho->prox->prox->filho->filho->filho->token.info)));
             }else{
                 strcpy(desc,escopo);
                 strcat(desc," variavel redeclarado  - ");
@@ -632,11 +636,49 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
             larv->filho->prox->prox= insereLista(larv->filho->prox->prox,tk);
             tk=getToken(fin, linha,col);
 
-            setTipoArraySimbolo(smbs_var,tk.info);// colocar o tipo em smbs_var ...
-            smbs.merge(smbs_var);
-            smbs_var.clear();
-
             larv->filho->prox->prox->prox=tipo_dado(fin,tk,linha,col);
+
+//            std::cout<<"pppp"<<std::endl;
+            //            setTipoArraySimbolo(smbs_var,tk.info);// colocar o tipo em smbs_var ...
+            //semantico
+            if(!strcmp("<IDENTIFICADOR>",larv->filho->prox->prox->prox->filho->token.info)){
+                strcpy(iden,larv->filho->prox->prox->prox->filho->filho->token.info);
+                if(existeNomeEmEscopo(smbs,"global",larv->filho->prox->prox->prox->filho->filho->token.info)){
+                    setTipoArraySimbolo(smbs_var, larv->filho->prox->prox->prox->filho->filho->token.info);
+                    smbs.merge(smbs_var);
+                    smbs_var.clear();
+                }
+                else{
+                    smbs_var.clear();
+                    // erro identificador tipo não existente
+                    // erro semantico
+                    strcpy(desc,escopo);
+                    strcat(desc," tipo não declarado - ");
+                    strcat(desc,iden);
+                    erro("",larv->token.info,desc ,1);
+                }
+            }
+            else
+                if(!strcmp("integer",larv->filho->prox->prox->prox->filho->token.info)){
+                    setTipoArraySimbolo(smbs_var,"integer");
+                    smbs.merge(smbs_var);
+                    smbs_var.clear();
+                }
+                else
+                    if(!strcmp("real",larv->filho->prox->prox->prox->filho->token.info)){
+                        setTipoArraySimbolo(smbs_var,"real");
+                        smbs.merge(smbs_var);
+                        smbs_var.clear();
+                    }
+                    else
+                        if(!strcmp("array",larv->filho->prox->prox->prox->filho->token.info)){
+                            setTipoArraySimbolo(smbs_var,"real");
+                            smbs.merge(smbs_var);
+                            smbs_var.clear();
+                        }
+
+            //            std::cout<<"pppp"<<std::endl;
+            //fim semantico
             return larv;
         }else{
             erro(":",larv->token.info,"",0);
@@ -678,12 +720,53 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
     strcpy(larv->token.info,"<TIPO>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
-         tk=getToken(fin, linha,col);
+        strncpy(iden,tk.info,21); // salvando esse identificador
+
+        tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IGUAL){
             larv->filho->prox= insereLista(larv->filho->prox,tk);
             tk=getToken(fin, linha,col);
             larv->filho->prox->prox=tipo_dado(fin,tk,linha,col);
+            // semantico
+            if(!existeNomeEmEscopo(smbs,escopo,iden)){
+                if(!strcmp("integer",larv->filho->prox->prox->filho->token.info)){
+                  smbs.push_back(new SimboloTipo(iden,escopo,"tipo","integer"));
+                }
+                else
+                    if(!strcmp("real",larv->filho->prox->prox->filho->token.info)){
+                        smbs.push_back(new SimboloTipo(iden,escopo,"tipo","real"));
+                    }
+                    else
+                        if(!strcmp("array",larv->filho->prox->prox->filho->token.info)){
+                            smbs.push_back(new SimboloTipo(iden,escopo,"tipo","array",
+                                                           atoi(larv->filho->prox->prox->filho->prox->prox->filho->token.info),
+                                                           larv->filho->prox->prox->filho->prox->prox->prox->prox->prox->filho->token.info));
+//                            std::cout<<"--pa- "<< larv->filho->prox->prox->filho->prox->prox->filho->token.info <<std::endl;
+//                            std::cout<<"--pa- "<< larv->filho->prox->prox->filho->prox->prox->prox->prox->prox->filho->token.info <<std::endl;
+//                            std::cout<<"--pa- "<< <<std::endl;
+//                            new SimboloTipo()
+                        }
+                        else
+                            if(!strcmp("<IDENTIFICADOR>",larv->filho->prox->prox->filho->token.info)){
+                                //                            std::cout<<"entrando aki"<<std::endl;
+                                if(!existeNomeEmEscopo(smbs,"global",larv->filho->prox->prox->filho->filho->token.info)){
+                                    strcpy(desc,escopo);
+                                    strcat(desc," tipo não declarado - ");
+                                    strcat(desc,larv->filho->prox->prox->filho->filho->token.info);
+                                    erro("",larv->token.info,desc ,1);
+                                }
+                            }
 
+            }
+            else{
+                //erro semantico...
+                strcpy(desc,escopo);
+                strcat(desc," tipo já declarado  - ");
+                strcat(desc,iden);
+                erro("",larv->token.info,desc ,1);
+            }
+
+            // fim semantico
             return larv;
         }
         else{
@@ -737,7 +820,7 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
                                                                         // inicialmente a qnt_parms é 0
 //            int total_de_params = contarParamFuncao(larv->filho->prox->prox->prox);
 //            std::cout<<"total de parametos "<< total_de_params<<std::endl;
-            std::cout<<"$$$$$ "<<qnt_params<<std::endl;
+//            std::cout<<"$$$$$ "<<qnt_params<<std::endl;
 //            sf->setQnt_Params(contarParamFuncao(larv->filho->prox->prox->prox));
             sf->setQnt_Params(qnt_params);
             smbs.push_back(sf);

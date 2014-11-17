@@ -6,6 +6,11 @@ SimboloTipo::SimboloTipo(char nome[21],char scopo[21],char classe[21],char tipo[
     this->tam=tam;
     strncpy(this->tipo_tipo,tipo_tipo,21);
 }
+SimboloTipo::SimboloTipo(char nome[21],char scopo[21],char classe[21],char tipo[21])
+:Simbolo(nome,scopo,classe,tipo){
+
+}
+
 SimboloTipo::~SimboloTipo(){
     delete[] this->nome;
     delete[] this->scopo;

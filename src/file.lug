@@ -1,9 +1,9 @@
 program funcoes;
 const
     TAM = 10;
-    TAM = 3-1;
 type
-     vetor = array[15] of integer;
+    vetor = array[15] of integer;
+
 var
     A, B, C, D : integer;
     E,R,S : vetor;

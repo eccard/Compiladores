@@ -8,6 +8,7 @@ class SimboloTipo : public Simbolo
     void print();
 public:
     SimboloTipo(char nome[21],char scopo[21],char classe[21],char tipo[21],int tam,char tipo_tipo[21]);
+    SimboloTipo(char nome[21],char scopo[21],char classe[21],char tipo[21]);
     ~SimboloTipo();
     int getTam();
     char* getTipo_tipo();
