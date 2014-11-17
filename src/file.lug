@@ -8,7 +8,7 @@ var
     A, B, C, D : integer;
     E,R,S : vetor;
 function
-    integer fatorial(a:integer;)
+    integer fatorial(a,b,d:integer;c:real;)
     var i : integer;
         begin
             i := 1;

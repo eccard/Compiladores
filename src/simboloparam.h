@@ -11,6 +11,8 @@ class SimboloParam : public Simbolo
     void print();
 public:
     SimboloParam(char nome[21],char scopo[21],char classe[21],char tipo[21],int posicao);
+    SimboloParam(char nome[21],char scopo[21],char classe[21]);
+    SimboloParam(char nome[21],char scopo[21],char classe[21],int posicaos);
     ~SimboloParam();
 };
 

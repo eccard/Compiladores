@@ -28,7 +28,6 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* comando(std::ifstream & fin,Token &tk, int *linha,int *col);
 
 int QNTNOGLOB=0;
-//std::vector<Simbolo> smbs;
 std::list<Simbolo*> smbs;
 std::list<Simbolo*> smbs_var;
 
@@ -438,7 +437,8 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
             if(!existeNomeEmEscopo(smbs,escopo,iden)){
                 smbs.push_back(new SimboloConst(iden,escopo,"const","int",1));
             }else{
-                strcpy(desc,"variavel redeclarado  - ");
+                strcpy(desc,escopo);
+                strcat(desc," variavel redeclarado  - ");
                 strcat(desc,iden);
                 erro("",larv->token.info,desc ,1);
             }
@@ -517,7 +517,7 @@ No* tipo_dado(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 }
 
-No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col){
+No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<LISTA_ID>");
 
@@ -526,12 +526,40 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col){
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho->prox=identificador(fin,tk,linha,col);
+//semantico
+//        if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
+//            smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
 
-        if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
-            smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+        if(funcao==0){
+            if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
+                smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+            else{
+                strcpy(desc,escopo);
+                strcat(desc," variavel redeclarado  - ");
+                strcat(desc,iden);
+                erro("",larv->token.info,desc ,1);
 
+            }
+        }
+        else// funcao ==1 -> significa que é um Param, é chamado por nome_função
+            if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info)){
+                smbs_var.push_back(new SimboloParam(tk.info,escopo,"param",qnt_parms));
+                qnt_parms=qnt_parms+1;
+            }
+            else{
+                strcpy(desc,escopo);
+                strcat(desc," parametro redeclarado  - ");
+                strcat(desc,iden);
+                erro("",larv->token.info,desc ,1);
+
+            }
+
+
+
+
+        // fim semantico
         tk=getToken(fin, linha,col);
-        larv->filho->prox->prox=lista_id(fin,tk,linha,col);
+        larv->filho->prox->prox=lista_id(fin,tk,linha,col,funcao,qnt_parms);
         return larv;
         }else{
             erro(",",larv->token.info,"",0);
@@ -542,17 +570,17 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
     else return larv;
 }
-No * variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao);
-No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao){// 1 se vem de funcao
+No * variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms);
+No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){// 1 se vem de funcao
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEIS> ");
-
+//    int qnt_parms=0;
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho=variavel(fin,tk,linha,col,funcao);
+        larv->filho=variavel(fin,tk,linha,col,funcao,qnt_parms);
         if (tk.tipo==cte::PVIRGULA){
             larv->filho->prox=insereLista(larv->filho->prox,tk);
             tk=getToken(fin, linha,col);
-            larv->filho->prox->prox=variaveis(fin,tk,linha,col,funcao);
+            larv->filho->prox->prox=variaveis(fin,tk,linha,col,funcao,qnt_parms);
             return larv;
 
         }else{
@@ -566,17 +594,39 @@ No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao){//
     }
 }
 
-No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao){
+No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){ //1 se é param, vem de funcao
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEL>");
-    //tk=getToken(fin, linha,col);
+
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
-        if(!existeNomeEmEscopo(smbs,escopo,tk.info))
-            smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+        strncpy(iden,tk.info,21);
+        if(funcao==0){
+            if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
+                smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+            else{
+                strcpy(desc,escopo);
+                strcat(desc," variavel redeclarado  - ");
+                strcat(desc,iden);
+                erro("",larv->token.info,desc ,1);
+
+            }
+        }
+        else// funcao ==1 -> significa que é um Param, é chamado por nome_função
+            if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info)){
+                smbs_var.push_back(new SimboloParam(tk.info,escopo,"param",qnt_parms));
+                qnt_parms=qnt_parms+1;
+            }
+            else{
+                strcpy(desc,escopo);
+                strcat(desc," variavel redeclarado  - ");
+                strcat(desc,iden);
+                erro("",larv->token.info,desc ,1);
+
+            }
 
         tk=getToken(fin, linha,col);
-        larv->filho->prox = lista_id(fin,tk,linha,col);
+        larv->filho->prox = lista_id(fin,tk,linha,col,funcao,qnt_parms);
 
         if(tk.tipo==cte::DOISPONTOS){
             larv->filho->prox->prox= insereLista(larv->filho->prox->prox,tk);
@@ -652,39 +702,48 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 int contarParamFuncao(No* larv){
     if(larv==NULL) return 0;
-    if(!strcmp(larv->token.info,"<IDENTIFICADOR>")) return 1;
+    if(!strcmp(larv->token.info,"<IDENTIFICADOR>")){
+        std::cout<<escopo <<"--- "<<larv->filho->token.info<<std::endl;
+//        contarParamFuncao(larv->filho) + contarParamFuncao(larv->prox);
+        return 1 + contarParamFuncao(larv->filho) + contarParamFuncao(larv->prox);
+    }
     else
-        return 0 + contarParamFuncao(larv->filho) + contarParamFuncao(larv->prox);
+        return contarParamFuncao(larv->filho) + contarParamFuncao(larv->prox);
 }
 
 No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME_FUNCAO>");
     larv->filho=tipo_dado(fin,tk,linha,col);
-
+    int qnt_params=0;
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho->prox=identificador(fin,tk,linha,col);
         // jogar esse identificador na tabela principal
+        strcpy(escopo,tk.info);// atualizando o escopo para a função
+
         if(!existeNomeEmEscopo(smbs,escopo,tk.info)){
-            SimboloFuncao *sf = new SimboloFuncao(tk.info,escopo,"FUNCAO");
+            SimboloFuncao *sf = new SimboloFuncao(tk.info,"GLOBAL","FUNCAO");
         //
         strncpy(iden,tk.info,21); // salvando o identificador no temporario
         tk=getToken(fin,linha,col);
         if(tk.tipo==cte::APARENTE){
             larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
-            strcpy(escopo_anterior,escopo);// salvando escopo anterior
-            strcpy(escopo,iden);           // setar flag para parametro
+//            strcpy(escopo_anterior,escopo);// salvando escopo anterior
+//            strcpy(escopo,iden);           // setar flag para parametro
 
             tk=getToken(fin,linha,col);
-            larv->filho->prox->prox->prox=variaveis(fin,tk,linha,col,1);// passando 1, significa q essa variavel será paramentro,
+            larv->filho->prox->prox->prox=variaveis(fin,tk,linha,col,1,qnt_params);// passando 1, significa q essa variavel será paramentro,
                                                                         // vindo de nome_funcao
+                                                                        // inicialmente a qnt_parms é 0
 //            int total_de_params = contarParamFuncao(larv->filho->prox->prox->prox);
 //            std::cout<<"total de parametos "<< total_de_params<<std::endl;
-            sf->setQnt_Params(contarParamFuncao(larv->filho->prox->prox->prox));
+            std::cout<<"$$$$$ "<<qnt_params<<std::endl;
+//            sf->setQnt_Params(contarParamFuncao(larv->filho->prox->prox->prox));
+            sf->setQnt_Params(qnt_params);
             smbs.push_back(sf);
             if(tk.tipo==cte::FPARENTE){
                 larv->filho->prox->prox->prox=insereLista(larv->filho->prox->prox->prox,tk);
-                strcpy(escopo,escopo_anterior);// voltando o escopo anterior
+//                strcpy(escopo,escopo_anterior);// voltando o escopo anterior
                 tk=getToken(fin,linha,col);
                 return larv;
             }
@@ -1092,6 +1151,7 @@ No * funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
 //    std::cout<< "teste ---- param função "<<larv->filho->filho->prox->prox->prox->filho->filho->prox->prox->filho->token.info<< std::endl;
 
     larv->filho->prox=bloco_funcao(fin,tk,linha,col);
+    strcpy(escopo,"global");
 
 
     return larv;
@@ -1152,15 +1212,16 @@ No * def_var(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<DEF_VAR>");
 
+   int qnt_params=0;
     if(tk.tipo ==cte:: VARIAVEL ){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
-            larv->filho->prox=variavel(fin,tk,linha,col,0);// passando 0, pq 0 significa que variavel não vem de uma declaração de função
+            larv->filho->prox=variavel(fin,tk,linha,col,0,qnt_params);// passando 0, pq 0 significa que variavel não vem de uma declaração de função
             if(tk.tipo ==cte:: PVIRGULA){
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);
                 tk=getToken(fin, linha,col);
-                larv->filho->prox->prox->prox=variaveis(fin,tk,linha,col,0);// passando 0, pq 0 significa que variavel não vem de uma declaração de função
+                larv->filho->prox->prox->prox=variaveis(fin,tk,linha,col,0,qnt_params);// passando 0, pq 0 significa que variavel não vem de uma declaração de função
                                                                             //
                 return larv;
             }
@@ -1266,10 +1327,12 @@ No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
 
     tk=getToken(fin, linha,col);
     if(tk.tipo==cte::INICIADOR){
+
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
             larv->filho->prox=identificador(fin,tk,linha,col);
+//            std::cout<<"teste"<<std::endl;
             tk=getToken(fin, linha,col);
             if(tk.tipo==cte::PVIRGULA){
                 larv->filho->prox->prox=insereLista(larv->filho->prox->prox,tk);

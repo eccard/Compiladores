@@ -95,8 +95,9 @@ int existeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] )
 
     std::list<Simbolo*>::iterator i;
     for (i=simbs.begin(); i!=simbs.end();++i){
-        if(!strcmp((*i)->getNome(),nome)) // retorna 0 se é igual
-            return 1;
+        if(!strcmp((*i)->getScopo(),scopo)) // retorna 0 se é igual
+            if(!strcmp((*i)->getNome(),nome)) // retorna 0 se é igual
+                return 1;
     }
 //    for(unsigned int i=0; i < simbs.size(); i++){
 //        if(!strcmp(simbs.at(i)->getNome(),nome)) // retorna 0 se é igual

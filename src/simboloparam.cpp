@@ -4,6 +4,14 @@ SimboloParam::SimboloParam(char nome[21],char scopo[21],char classe[21],char tip
     :Simbolo(nome,scopo,classe,tipo){
     this->posicao=posicao;
 }
+SimboloParam::SimboloParam(char nome[21],char scopo[21],char classe[21])
+    :Simbolo(nome,scopo,classe){
+}
+SimboloParam::SimboloParam(char nome[21],char scopo[21],char classe[21],int posicao)
+    :Simbolo(nome,scopo,classe){
+    this->posicao=posicao;
+}
+
 SimboloParam::~SimboloParam(){
     delete[] this->nome;
     delete[] this->scopo;
