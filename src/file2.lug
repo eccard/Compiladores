@@ -1,37 +1,55 @@
 program funcoes;
 const
     TAM = 10;
-    test = 3-1;
+    test = 3;
 type
      vetor = array[15] of integer;
 var
-    A, B, C, D : integer;
-    E,R,S : vetor;
-
+    B, C, D : integer;
+    E : vetor;
+    A: real;
 function
-real f(a,b:integer;)
+integer fatorial(a:integer;)
+var i : integer;
 begin
-    while a < 2
-    if a > b then
-        a:=b;;
-    else
-        b:=1;;;
+        i := 2;
+        result:=1;
+        while i < a
+        begin
+            result:=result*i;
+            i:=i+1;
+        end;
 end
+
 integer exp(a: real; b: real;)
 var i : integer;
 begin
         i := 1;
         result := a;
         if b = 0 then
-            result := 1;;
+            result := 1;
         else
         while i < b
         begin
             result := a * a;
             i := i + 1;
-        end;;
+        end;
+end
+integer maior(a : vetor;)
+var i : integer;
+begin
+    i := 0;
+    result := a[0];
+    while i < 15
+    begin
+        if a[i] > result then
+        result := a[i];;
+    end;
 end
 begin
-
+    A:=TAM;
+    B := fatorial(B);
+    C := exp(A,A);
+    D := maior(E);
 end
 

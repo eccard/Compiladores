@@ -3,13 +3,12 @@ const
     TAM = 10;
 type
     vetor = array[15] of integer;
-
 var
-    A, B, C, D : integer;
+    A, B, C, D,i,b,a : integer;
     E,R,S : vetor;
 function
     integer fatorial(a,b,d:integer;c:real;)
-    var i : integer;
+    var i,result : integer;
         begin
             i := 1;
             result:=1;

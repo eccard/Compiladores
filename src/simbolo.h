@@ -36,6 +36,10 @@ public:
 };
 
 //int existeNomeEmEscopo(std::string escopo);
+char *tipoParamFuncao(std::list<Simbolo*> &simbs,char nome_func[21],int posicao);
+int qntParamsFuncao(std::list<Simbolo*> &simbs,char nome[21] );
+char* tipoNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] );
+char* classeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] );
 int existeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] );
 int procuraSimbolo(std::list<Simbolo*> &simbs,char nome[21]);
 //int possuifuncao(std::vector<Simbolo> &simbs,std::string nome);

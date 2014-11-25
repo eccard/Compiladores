@@ -1,4 +1,6 @@
 #include "simbolo.h"
+#include "simbolofuncao.h"
+#include "simboloparam.h"
 #include <list>
 #include <string.h>
 Simbolo::Simbolo(){}
@@ -105,6 +107,48 @@ int existeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] )
 //                return 1;
 //    }
     return 0;
+}
+char* tipoNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] ){
+    std::list<Simbolo*>::iterator i;
+    for (i=simbs.begin(); i!=simbs.end();++i){
+        if(!strcmp((*i)->getNome(),nome)) // retorna 0 se é igual
+            if(!strcmp((*i)->getScopo(),scopo)){ // retorna 0 se é igual
+                if(!strcmp((*i)->getClasse(),"var") || !strcmp((*i)->getClasse(),"param")){
+                    return (*i)->getTipo();
+                }
+            }
+    }
+    return "";
+
+}
+char* classeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] ){
+    std::list<Simbolo*>::iterator i;
+    for (i=simbs.begin(); i!=simbs.end();++i){
+        if(!strcmp((*i)->getNome(),nome)) // retorna 0 se é igual
+            if(!strcmp((*i)->getScopo(),scopo)){ // retorna 0 se é igual
+                return (*i)->getClasse();
+            }
+    }
+    return "";
+
+}
+int qntParamsFuncao(std::list<Simbolo*> &simbs,char nome[21] ){
+    std::list<Simbolo*>::iterator i;
+    for (i=simbs.begin(); i!=simbs.end();++i){
+        if(!strcmp((*i)->getNome(),nome)) // retorna 0 se é igual
+            if(!strcmp((*i)->getScopo(),"global")){ // retorna 0 se é igual
+                return dynamic_cast<SimboloFuncao*>(*i)->getQnt_Params();
+            }
+    }
+}
+char *tipoParamFuncao(std::list<Simbolo*> &simbs,char nome_func[21],int posicao){
+    std::list<Simbolo*>::iterator i;
+    for (i=simbs.begin(); i!=simbs.end();++i){
+        if(!strcmp((*i)->getScopo(),nome_func)) // retorna 0 se é igual
+            if(!strcmp((*i)->getClasse(),"param"))
+                if( (dynamic_cast<SimboloParam*>(*i)->getPosicao()) == posicao)
+                    return (*i)->getTipo();
+    }
 }
 
 void setTipoArraySimbolo(std::list<Simbolo*> &simbs_var,char tipo[21]){

@@ -6,10 +6,11 @@ class SimboloParam : public Simbolo
 {
     int posicao;
 
-    int getPosicao();
+
     void setPosicao(int posicao);
     void print();
 public:
+    int getPosicao();
     SimboloParam(char nome[21],char scopo[21],char classe[21],char tipo[21],int posicao);
     SimboloParam(char nome[21],char scopo[21],char classe[21]);
     SimboloParam(char nome[21],char scopo[21],char classe[21],int posicaos);
