@@ -534,6 +534,7 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho->prox=identificador(fin,tk,linha,col);
+        strncpy(iden,larv->filho->prox->filho->token.info,21);
 //semantico
 //        if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
 //            smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
