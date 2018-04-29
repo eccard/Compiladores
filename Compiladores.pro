@@ -34,4 +34,5 @@ HEADERS += \
     src/simboloconst.h \
     src/simboloparam.h
 
+QMAKE_CXXFLAGS += -Wextra
 FORMS    +=
