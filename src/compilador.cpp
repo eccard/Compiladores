@@ -344,12 +344,22 @@ void setarNumNos(No *a){
         setarNumNos(a->filho);
     }
 }
+
+static No*
+criaNo(void)
+{
+    No *larv= (No*) malloc(sizeof(No));
+    larv->filho = NULL;
+    larv->prox = NULL;
+    return larv;
+}
+
 No * insereLista(No * l,Token token){
     No * r=l;
     No * t=NULL;
 
     if(l==NULL){
-        l=(No*)malloc(sizeof(No));
+        l=criaNo();
         l->token= token;
         l->prox=NULL;
         l->filho=NULL;
@@ -361,7 +371,7 @@ No * insereLista(No * l,Token token){
             r=r->prox;
         }
 
-        t=(No*)malloc(sizeof(No));
+        t=criaNo();
         t->token=token;
         t->prox=NULL;
         t->filho=NULL;
@@ -374,7 +384,7 @@ No * insereLista(No * l,Token token){
 
 //falta tratar erro
 No * const_valor(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONST_VALOR>");
 
     if(tk.tipo==cte::IDENTIFICADOR){  // o que ele diz de sequencia alfanumerica
@@ -401,7 +411,7 @@ void erro(char tag[20], char info[10],char desc[130],bool tipo){ //tipo 0 -> err
 }
 
 No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONSTANTES> ");
 
     if(tk.tipo==cte::IDENTIFICADOR){
@@ -428,7 +438,7 @@ double getConst_valor(No *larv){
 }
 
 No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONSTANTE>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
@@ -466,7 +476,7 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 }
 No* numero(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NUMERO>");
     if(tk.tipo==cte::NUMERICO){
         larv->filho=insereLista(larv->filho,tk);
@@ -482,7 +492,7 @@ No* numero(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* tipo_dado(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<TIPO_DADO>");
 
     if(tk.tipo==cte::REAL || tk.tipo==cte::INTEIRO ){
@@ -526,7 +536,7 @@ No* tipo_dado(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<LISTA_ID>");
 
     if(tk.tipo==cte::VIRGULA){
@@ -581,7 +591,7 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
 }
 No * variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms);
 No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){// 1 se vem de funcao
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEIS> ");
 //    int qnt_parms=0;
     if(tk.tipo==cte::IDENTIFICADOR){
@@ -604,7 +614,7 @@ No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int
 }
 
 No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){ //1 se é param, vem de funcao
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VARIAVEL>");
 
     if(tk.tipo==cte::IDENTIFICADOR){
@@ -698,7 +708,7 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
 }
 No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col);
 No * tipos(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<TIPOS> ");
 
     if(tk.tipo==cte::IDENTIFICADOR){
@@ -721,7 +731,7 @@ No * tipos(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<TIPO>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
@@ -800,7 +810,7 @@ int contarParamFuncao(No* larv){
 }
 
 No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME_FUNCAO>");
     larv->filho=tipo_dado(fin,tk,linha,col);
     int qnt_params=0;
@@ -857,7 +867,7 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 No* bloco(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* senao(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<SENAO> ");
     tk=getToken(fin, linha,col);
     if(tk.tipo==cte::SENAO){
@@ -871,14 +881,14 @@ No* senao(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 No* op_logico(std::ifstream & fin,Token tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<OP_LOGICO> ");
     larv->filho=insereLista(larv->filho,tk);
     return larv;
 }
 
 No* exp_logica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_LOGICA_2> ");
     if((tk.tipo==cte::MAIOR) || (tk.tipo==cte::MENOR) ||(tk.tipo==cte::IGUAL) ||(tk.tipo==cte::EXCLAMACAO) ){
         larv->filho=op_logico(fin,tk,linha,col);
@@ -891,14 +901,14 @@ No* exp_logica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 No* op_matematico(std::ifstream & fin,Token tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<OP_MATEMATICO> ");
     larv->filho=insereLista(larv->filho,tk);
     return larv;
 }
 
 No* exp_matematica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_MATEMATiCA_2> ");
     if((tk.tipo==cte::MAIS) || (tk.tipo==cte::MENOS) ||(tk.tipo==cte::ASTERISCO) ||(tk.tipo==cte::BARRA) ){
         larv->filho=op_matematico(fin,tk,linha,col);
@@ -913,7 +923,7 @@ No* exp_matematica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 
 No* exp_matematica(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_MATEMATICA> ");
      if((tk.tipo==cte::MAIS) || (tk.tipo==cte::MENOS) ||(tk.tipo==cte::ASTERISCO) ||(tk.tipo==cte::BARRA) ){
         larv->filho=op_matematico(fin,tk,linha,col);
@@ -927,7 +937,7 @@ No* exp_matematica(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* exp_logica(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_LOGICA> ");
     larv->filho=nome_numero(fin,tk,linha,col);
     larv->filho->prox= exp_matematica(fin,tk,linha,col);
@@ -937,7 +947,7 @@ No* exp_logica(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 
 No* lista_param(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<LISTA_PARAM>");
         if(tk.tipo==cte::VIRGULA){
         larv->filho=insereLista(larv->filho,tk);
@@ -953,7 +963,7 @@ No* lista_param(std::ifstream & fin,Token &tk, int *linha,int *col){
 No* nome_numero(std::ifstream & fin,Token &tk, int *linha,int *col);
 
 No* parametro(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<PARAMETRO>");
 
     larv->filho=nome_numero(fin,tk,linha,col);
@@ -963,7 +973,7 @@ No* parametro(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* parametros(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<PARAMETROS>");
     tk=getToken(fin, linha,col);
     if(tk.tipo==cte::APARENTE){
@@ -984,7 +994,7 @@ No* parametros(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 No* valor_2(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VALOR_2>");
 
     if(tk.tipo==cte::APARENTE){
@@ -1011,7 +1021,7 @@ No* valor_2(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* valor(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VALOR>");
     if(tk.tipo==cte::IDENTIFICADOR){
         larv->filho=identificador(fin,tk,linha,col);
@@ -1028,7 +1038,7 @@ No* valor(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 No* nome(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* nome_numero(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME_NUMERO> ");
 
     if(tk.tipo==cte::NUMERICO){
@@ -1047,7 +1057,7 @@ No* nome_numero(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 No*
 indice(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<INDICE> ");
     if(tk.tipo==cte::ACOLCH){
 
@@ -1070,7 +1080,7 @@ indice(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No* nome(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME>");
     larv->filho=identificador(fin,tk,linha,col);
     tk=getToken(fin, linha,col);// ultimo altera
@@ -1080,7 +1090,7 @@ No* nome(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 
 No* comandos(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<COMANDOS> ");
 
     if((tk.tipo ==cte:: IDENTIFICADOR) || (tk.tipo ==cte:: ENQUANTO) || (tk.tipo ==cte:: SE ) || (tk.tipo ==cte::ESCREVER) || (tk.tipo ==cte::LER)){
@@ -1320,7 +1330,7 @@ void verificaAtribuicao(No *larv){//semantico
 
 }
 No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<COMANDO>");
 
     if(tk.tipo==cte::ENQUANTO){
@@ -1418,7 +1428,7 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
     }
 }
 No * bloco(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<BLOCO>");
     if(tk.tipo==cte::INICIO){
         larv->filho=insereLista(larv->filho,tk);
@@ -1442,7 +1452,7 @@ No * bloco(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 
 No * bloco_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<BLOCO_FUNCAO>");
 
     if(tk.tipo==cte::VARIAVEL){
@@ -1457,7 +1467,7 @@ No * bloco_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
        return larv;
 }
 No * funcoes(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<FUNCOES>");
     if(tk.tipo==cte::INTEIRO || tk.tipo==cte::REAL || tk.tipo==cte::VETOR || tk.tipo==cte::IDENTIFICADOR ){
         larv->filho=funcao(fin,tk,linha,col);
@@ -1471,7 +1481,7 @@ No * funcoes(std::ifstream & fin,Token &tk, int *linha,int *col){
     return larv;
 }
 No * funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<FUNCAO>");
 
     larv->filho=nome_funcao(fin,tk,linha,col);
@@ -1497,7 +1507,7 @@ No * funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
     return larv;
 }
 No * def_func(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<DEF_FUNC>");
 
     if(tk.tipo ==cte:: FUNCAO ){
@@ -1514,7 +1524,7 @@ No * def_func(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No * def_tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<DEF_TIPO>");
 
     if(tk.tipo ==cte:: TIPO ){
@@ -1549,7 +1559,7 @@ No * def_tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No * def_var(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<DEF_VAR>");
 
    int qnt_params=0;
@@ -1584,7 +1594,7 @@ No * def_var(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 No * def_const(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<DEF_CONST>");
 
     if(tk.tipo ==cte:: CONSTANTE ){
@@ -1622,7 +1632,7 @@ No * def_const(std::ifstream & fin,Token &tk, int *linha,int *col){
 
 No * declaracoes(std::ifstream & fin,Token &tk, int *linha,int *col){  // inicializa as funções
 
-    No *larv =(No*)malloc(sizeof(No));
+    No *larv =criaNo();
     strcpy(larv->token.info, "<DECLARACOES>");
 
     larv->filho=def_const(fin,tk,linha,col);
@@ -1632,7 +1642,7 @@ No * declaracoes(std::ifstream & fin,Token &tk, int *linha,int *col){  // inicia
     return larv;
 }
 No* corpo(std::ifstream & fin,Token &tk, int *linha,int *col){
-    No *larv =(No*)malloc(sizeof(No)); /// lista auxiliar para montar a lista de filhos
+    No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CORPO>");
 
     if(tk.tipo ==cte:: TIPO || tk.tipo ==cte:: CONSTANTE || tk.tipo ==cte:: VARIAVEL || tk.tipo ==cte:: FUNCAO ){
@@ -1645,8 +1655,12 @@ No* corpo(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
 }
+
+
 No* identificador(std::ifstream &fin,Token tk, int *linha,int *col){
-    No *larv=(No*)malloc(sizeof(No));
+    No *larv= criaNo();
+
+
     if(tk.tipo==cte::IDENTIFICADOR){
         strcpy(larv->token.info,"<IDENTIFICADOR>");
 //        if(!procuraSimbolo(smbs,tk.info)) smbs.push_back(Simbolo(tk.info)); // colocando na "talela" de simbolos
@@ -1727,7 +1741,7 @@ int main(int argc, char **argv) {
     a->setRaiz(arv);
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
     setarNumNos(a->getRaiz());
-//    a->show();
+    a->show();
 
 //    listarSimbolos(smbs);
 
