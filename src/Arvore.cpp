@@ -93,18 +93,21 @@ void Arvore::show() {
   p->setProcessChannelMode(QProcess::MergedChannels);
   p->start("dot", QStringList() << "-Tpng");
   p->write(a);
+  p->closeWriteChannel();
 
   QByteArray data;
   QPixmap pixmap = QPixmap();
 
-  while (p->waitForReadyRead(1600)) {
-    data.append(p->readAll());
-  }
-  delete p;
+  while (!p->waitForFinished()) {}
+
+  data = p->readAll();
+
   pixmap.loadFromData(data);
 
   this->_scene->addPixmap(pixmap);
   this->_view->show();
+
+  delete p;
 }
 
 /*
