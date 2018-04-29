@@ -13,7 +13,7 @@ public:
 //    Simbolo(char nome[21],char scopo[21],char tipo[21]);
     Simbolo(char nome[21],char scopo[21],char classe[21]);
     Simbolo(char nome[21],char scopo[21],char classe[21],char tipo[21]);
-    virtual ~Simbolo();
+
     char nome[21];
     char scopo[21];
     char classe[21];

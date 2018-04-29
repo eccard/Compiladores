@@ -22,13 +22,6 @@ Simbolo::Simbolo(char nome[21],char scopo[21],char classe[21],char tipo[21]){
     strncpy(this->tipo,tipo,21);
 }
 
-Simbolo::~Simbolo(){
-    delete[] this->nome;
-    delete[] this->scopo;
-    delete[] this->classe;
-    delete[] this->tipo;
-}
-
 char* Simbolo::getNome(){
     return this->nome;
 }
@@ -118,7 +111,7 @@ char* tipoNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] )
                 }
             }
     }
-    return "";
+    return (char*) "";
 
 }
 char* classeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21] ){
@@ -129,7 +122,7 @@ char* classeNomeEmEscopo(std::list<Simbolo*> &simbs,char scopo[21],char nome[21]
                 return (*i)->getClasse();
             }
     }
-    return "";
+    return (char *) "";
 
 }
 int qntParamsFuncao(std::list<Simbolo*> &simbs,char nome[21] ){
@@ -140,6 +133,8 @@ int qntParamsFuncao(std::list<Simbolo*> &simbs,char nome[21] ){
                 return dynamic_cast<SimboloFuncao*>(*i)->getQnt_Params();
             }
     }
+
+    return 0;
 }
 char *tipoParamFuncao(std::list<Simbolo*> &simbs,char nome_func[21],int posicao){
     std::list<Simbolo*>::iterator i;
@@ -149,6 +144,7 @@ char *tipoParamFuncao(std::list<Simbolo*> &simbs,char nome_func[21],int posicao)
                 if( (dynamic_cast<SimboloParam*>(*i)->getPosicao()) == posicao)
                     return (*i)->getTipo();
     }
+    return (char *) "";
 }
 
 void setTipoArraySimbolo(std::list<Simbolo*> &simbs_var,char tipo[21]){

@@ -16,8 +16,3 @@ void SimboloConst::print(){
     std::cout<<this->getNome()<< " " << this->getScopo() << " " <<this->getClasse() <<" "<< this->getTipo()<<" "<<this->getValor() <<std::endl;
 }
 
-SimboloConst::~SimboloConst(){
-    delete[] this->nome;
-    delete[] this->scopo;
-    delete[] this->tipo;
-}

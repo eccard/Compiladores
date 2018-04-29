@@ -12,14 +12,6 @@ SimboloParam::SimboloParam(char nome[21],char scopo[21],char classe[21],int posi
     this->posicao=posicao;
 }
 
-SimboloParam::~SimboloParam(){
-    delete[] this->nome;
-    delete[] this->scopo;
-    delete[] this->classe;
-    delete[] this->tipo;
-
-}
-
 int SimboloParam::getPosicao(){
     return this->posicao;
 }
