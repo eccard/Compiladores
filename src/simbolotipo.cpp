@@ -11,13 +11,6 @@ SimboloTipo::SimboloTipo(char nome[21],char scopo[21],char classe[21],char tipo[
 
 }
 
-SimboloTipo::~SimboloTipo(){
-    delete[] this->nome;
-    delete[] this->scopo;
-    delete[] this->classe;
-    delete[] this->tipo;
-}
-
 int SimboloTipo::getTam(){
     return this->tam;
 }

@@ -12,7 +12,6 @@ class SimboloConst : public Simbolo
 
 public:
     SimboloConst(char nome[21],char scopo[21],char classe[21],char tipo[21],double valor);
-    ~SimboloConst();
 };
 
 #endif // SIMBOLOCONST_H
