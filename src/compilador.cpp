@@ -1741,7 +1741,7 @@ int main(int argc, char **argv) {
     a->setRaiz(arv);
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
     setarNumNos(a->getRaiz());
-//    a->show();
+    a->show();
 
 //    listarSimbolos(smbs);
 
