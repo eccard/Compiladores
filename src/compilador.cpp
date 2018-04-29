@@ -65,24 +65,24 @@ int checkTipoToken(char token[21]){
     if(strcmp(token,":=")==0){return cte::ATRIBUIR;}
     if(strcmp(token,"const")==0){return cte::CONSTANTE;}
 
-    if(strcmp(token,";")==0){return cte::PVIRGULA;}
-    if(strcmp(token,":")==0){return cte::DOISPONTOS;}
-    if(strcmp(token,",")==0){return cte::VIRGULA;}
-    if(strcmp(token,"=")==0){return cte::IGUAL;}
-    if(strcmp(token,"(")==0){return cte::APARENTE;}
-    if(strcmp(token,")")==0){return cte::FPARENTE;}
-    if(strcmp(token,"[")==0){return cte::ACOLCH;}
-    if(strcmp(token,"]")==0){return cte::FCOLCH;}
+    if(*token == ';'){return cte::PVIRGULA;}
+    if(*token == ':'){return cte::DOISPONTOS;}
+    if(*token == ','){return cte::VIRGULA;}
+    if(*token == '='){return cte::IGUAL;}
+    if(*token == '('){return cte::APARENTE;}
+    if(*token == ')'){return cte::FPARENTE;}
+    if(*token == '['){return cte::ACOLCH;}
+    if(*token == ']'){return cte::FCOLCH;}
 
-    if(strcmp(token,">")==0){return cte::MAIOR;}
-    if(strcmp(token,"<")==0){return cte::MENOR;}
-    if(strcmp(token,"!")==0){return cte::EXCLAMACAO;}
+    if(*token == '>'){return cte::MAIOR;}
+    if(*token == '<'){return cte::MENOR;}
+    if(*token == '!'){return cte::EXCLAMACAO;}
 
 
-    if(strcmp(token,"+")==0){return cte::MAIS;}
-    if(strcmp(token,"-")==0){return cte::MENOS;}
-    if(strcmp(token,"*")==0){return cte::ASTERISCO;}
-    if(strcmp(token,"/")==0){return cte::BARRA;}
+    if(*token == '+'){return cte::MAIS;}
+    if(*token == '-'){return cte::MENOS;}
+    if(*token == '*'){return cte::ASTERISCO;}
+    if(*token == '/'){return cte::BARRA;}
 
 
     x=strlen(token);
