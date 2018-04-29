@@ -18,9 +18,9 @@
 #include <iterator>
 #include <stack>
 
-No* identificador(std::ifstream & fin,Token tk, int *linha,int *col);
+No* identificador(Token tk);
 No* exp_logica(std::ifstream & fin,Token &tk, int *linha,int *col);
-No* op_matematico(std::ifstream & fin,Token tk, int *linha,int *col);
+No* op_matematico(Token tk);
 No* exp_matematica(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* parametro(std::ifstream & fin,Token &tk, int *linha,int *col);
 No* nome_numero(std::ifstream & fin,Token &tk, int *linha,int *col);
@@ -402,14 +402,25 @@ No * const_valor(std::ifstream & fin,Token &tk, int *linha,int *col){
     return larv;
 }
 
+void erroSintatico(char* tag,char info[10])
+{
+        std::cout<< "erro em "<<tag<<", falta "<<info<<std::endl;
+}
 
+void erroSemantico(char info[10],char desc[130])
+{
+    std::cout<<info<<"  erro semantico "<<desc<<std::endl;
+}
+
+/*
 void erro(char tag[20], char info[10],char desc[130],bool tipo){ //tipo 0 -> erro sintatico | 1 semantico
     if(tipo==0)
         std::cout<< "erro em "<<tag<<", falta "<<info<<std::endl;
     if(tipo==1)
-          std::cout<<info<<"  erro semantico "<<desc<<std::endl;
+          std::cout<<info<<"  erro semantico "<<de
+                     sc<<std::endl;
 }
-
+*/
 No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONSTANTES> ");
@@ -424,7 +435,7 @@ No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
 
         }else{
-            erro(";",larv->token.info,"",0);
+            erroSintatico( (char *) ";",larv->token.info);
             return larv;
         }
 
@@ -433,15 +444,12 @@ No* constantes(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
 }
-double getConst_valor(No *larv){
-    double total;
-}
 
 No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<CONSTANTE>");
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho=identificador(fin,tk,linha,col);
+        larv->filho=identificador(tk);
         strncpy(iden,tk.info,21); //semantico...
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IGUAL){
@@ -453,24 +461,25 @@ No* constante(std::ifstream & fin,Token &tk, int *linha,int *col){
             // aki que vou jogar essa constante na tabela de simbolos
             if(!existeNomeEmEscopo(smbs,escopo,iden)){
 //                std::cout<< "---------"<<larv->filho->prox->prox->filho->filho->filho->token.info<<std::endl;
-                smbs.push_back(new SimboloConst(iden,escopo,"const","int",atol(larv->filho->prox->prox->filho->filho->filho->token.info)));
+                smbs.push_back(new SimboloConst(iden,escopo,(char *) "const",(char *) "int",atol(larv->filho->prox->prox->filho->filho->filho->token.info)));
             }else{
                 strcpy(desc,escopo);
                 strcat(desc," variavel redeclarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
             }
             return larv;
         }
         else{
-            erro("=",larv->token.info,"",0);
+            erroSintatico( (char *) "=",larv->token.info);
             //std::cout<< "erro em <CONSTANTE>, falta =" <<std::endl;
             return larv;
         }
     }
     else{
-        erro("IDENTIFICADOR",larv->token.info,"",0);
+        erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
         //std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
+
         return larv;
     }
 
@@ -484,7 +493,7 @@ No* numero(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
     else{
-        erro("numero",larv->token.info,"",0);
+        erroSintatico( (char *) "numero",larv->token.info);
         //std::cout<< " número não encontrado" << std::endl;
         return NULL;
     }
@@ -522,17 +531,17 @@ No* tipo_dado(std::ifstream & fin,Token &tk, int *linha,int *col){
         }
     }else{
          if(tk.tipo==cte::IDENTIFICADOR){
-            larv->filho=identificador(fin,tk,linha,col);
+            larv->filho=identificador(tk);
             tk=getToken(fin, linha,col);
             return larv;
         }else{
-            erro("o tipo especificado",larv->token.info,"",0);
+            erroSintatico( (char *) "o tipo especificado",larv->token.info);
             //std::cout<< "identificador não encontrado"<<std::endl;
-            return larv;
         }
 
     }
 
+    return NULL;
 }
 
 No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &qnt_parms){
@@ -543,7 +552,7 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho->prox=identificador(fin,tk,linha,col);
+        larv->filho->prox=identificador(tk);
         strncpy(iden,larv->filho->prox->filho->token.info,21);
 //semantico
 //        if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
@@ -551,25 +560,25 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
 
         if(funcao==0){
             if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
-                smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+                smbs_var.push_back(new Simbolo(tk.info,escopo,(char *) "var"));
             else{
                 strcpy(desc,escopo);
                 strcat(desc," variavel redeclarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
 
             }
         }
         else// funcao ==1 -> significa que é um Param, é chamado por nome_função
             if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info)){
-                smbs_var.push_back(new SimboloParam(tk.info,escopo,"param",qnt_parms));
+                smbs_var.push_back(new SimboloParam(tk.info,escopo,(char *) "param",qnt_parms));
                 qnt_parms=qnt_parms+1;
             }
             else{
                 strcpy(desc,escopo);
                 strcat(desc," parametro redeclarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
 
             }
 
@@ -581,7 +590,7 @@ No* lista_id(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
         larv->filho->prox->prox=lista_id(fin,tk,linha,col,funcao,qnt_parms);
         return larv;
         }else{
-            erro(",",larv->token.info,"",0);
+            erroSintatico( (char *) ",",larv->token.info);
             //std::cout<< "identificador não encontrado em lista_id"<<std::endl;
             return NULL;
         }
@@ -603,7 +612,7 @@ No * variaveis(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int
             return larv;
 
         }else{
-            erro(";",larv->token.info,"",0);
+            erroSintatico( (char *) ";",larv->token.info);
             //std::cout<< "erro na variaveis, falta ;" <<std::endl;
             return larv;
         }
@@ -618,29 +627,29 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
     strcpy(larv->token.info,"<VARIAVEL>");
 
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho=identificador(fin,tk,linha,col);
+        larv->filho=identificador(tk);
         strncpy(iden,tk.info,21);
         if(funcao==0){
             if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info))
-                smbs_var.push_back(new Simbolo(tk.info,escopo,"var"));
+                smbs_var.push_back(new Simbolo(tk.info,escopo,(char *) "var"));
             else{
                 strcpy(desc,escopo);
                 strcat(desc," variavel redeclarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
 
             }
         }
         else// funcao ==1 -> significa que é um Param, é chamado por nome_função
             if(!existeNomeEmEscopo(smbs,escopo,tk.info) && !existeNomeEmEscopo(smbs_var,escopo,tk.info)){
-                smbs_var.push_back(new SimboloParam(tk.info,escopo,"param",qnt_parms));
+                smbs_var.push_back(new SimboloParam(tk.info,escopo,(char *) "param",qnt_parms));
                 qnt_parms=qnt_parms+1;
             }
             else{
                 strcpy(desc,escopo);
                 strcat(desc," variavel redeclarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
 
             }
 
@@ -658,7 +667,7 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
             //semantico
             if(!strcmp("<IDENTIFICADOR>",larv->filho->prox->prox->prox->filho->token.info)){
                 strcpy(iden,larv->filho->prox->prox->prox->filho->filho->token.info);
-                if(existeNomeEmEscopo(smbs,"global",larv->filho->prox->prox->prox->filho->filho->token.info)){
+                if(existeNomeEmEscopo(smbs,(char *) "global",larv->filho->prox->prox->prox->filho->filho->token.info)){
                     setTipoArraySimbolo(smbs_var, larv->filho->prox->prox->prox->filho->filho->token.info);
                     smbs.merge(smbs_var);
                     smbs_var.clear();
@@ -670,24 +679,24 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
                     strcpy(desc,escopo);
                     strcat(desc," tipo não declarado - ");
                     strcat(desc,iden);
-                    erro("",larv->token.info,desc ,1);
+                    erroSemantico(larv->token.info,desc);
                 }
             }
             else
                 if(!strcmp("integer",larv->filho->prox->prox->prox->filho->token.info)){
-                    setTipoArraySimbolo(smbs_var,"integer");
+                    setTipoArraySimbolo(smbs_var,(char *)"integer");
                     smbs.merge(smbs_var);
                     smbs_var.clear();
                 }
                 else
                     if(!strcmp("real",larv->filho->prox->prox->prox->filho->token.info)){
-                        setTipoArraySimbolo(smbs_var,"real");
+                        setTipoArraySimbolo(smbs_var,(char *) "real");
                         smbs.merge(smbs_var);
                         smbs_var.clear();
                     }
                     else
                         if(!strcmp("array",larv->filho->prox->prox->prox->filho->token.info)){
-                            setTipoArraySimbolo(smbs_var,"real");
+                            setTipoArraySimbolo(smbs_var,(char *) "real");
                             smbs.merge(smbs_var);
                             smbs_var.clear();
                         }
@@ -696,15 +705,17 @@ No* variavel(std::ifstream & fin,Token &tk, int *linha,int *col,int funcao,int &
             //fim semantico
             return larv;
         }else{
-            erro(":",larv->token.info,"",0);
+            erroSintatico( (char *) ":",larv->token.info);
             //std::cout<<"erro em variavel, : não encontrado.   encontrado "<<tk.info<<" "<<tk.linha<<std::endl;
         }
 
     }else{
-        erro("IDENTIFICADOR",larv->token.info,"",0);
+        erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
         //std::cout<< "identificador não encontrado"<<std::endl;
-        return NULL;
+
     }
+
+    return NULL;
 }
 No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col);
 No * tipos(std::ifstream & fin,Token &tk, int *linha,int *col){
@@ -721,7 +732,7 @@ No * tipos(std::ifstream & fin,Token &tk, int *linha,int *col){
             return larv;
 
         }else{
-            erro(";",larv->token.info,"",0);
+            erroSintatico( (char *) ";",larv->token.info);
             //std::cout<< "erro na variaveis, falta ;" <<std::endl;
             return larv;
         }
@@ -734,7 +745,7 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<TIPO>");
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho=identificador(fin,tk,linha,col);
+        larv->filho=identificador(tk);
         strncpy(iden,tk.info,21); // salvando esse identificador
 
         tk=getToken(fin, linha,col);
@@ -745,15 +756,15 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
             // semantico
             if(!existeNomeEmEscopo(smbs,escopo,iden)){
                 if(!strcmp("integer",larv->filho->prox->prox->filho->token.info)){
-                  smbs.push_back(new SimboloTipo(iden,escopo,"tipo","integer"));
+                  smbs.push_back(new SimboloTipo(iden,escopo,(char *) "tipo",(char *) "integer"));
                 }
                 else
                     if(!strcmp("real",larv->filho->prox->prox->filho->token.info)){
-                        smbs.push_back(new SimboloTipo(iden,escopo,"tipo","real"));
+                        smbs.push_back(new SimboloTipo(iden,escopo,(char *) "tipo",(char *) "real"));
                     }
                     else
                         if(!strcmp("array",larv->filho->prox->prox->filho->token.info)){
-                            smbs.push_back(new SimboloTipo(iden,escopo,"tipo","array",
+                            smbs.push_back(new SimboloTipo(iden,escopo,(char *) "tipo",(char *) "array",
                                                            atoi(larv->filho->prox->prox->filho->prox->prox->filho->token.info),
                                                            larv->filho->prox->prox->filho->prox->prox->prox->prox->prox->filho->token.info));
 //                            std::cout<<"--pa- "<< larv->filho->prox->prox->filho->prox->prox->filho->token.info <<std::endl;
@@ -764,11 +775,11 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
                         else
                             if(!strcmp("<IDENTIFICADOR>",larv->filho->prox->prox->filho->token.info)){
                                 //                            std::cout<<"entrando aki"<<std::endl;
-                                if(!existeNomeEmEscopo(smbs,"global",larv->filho->prox->prox->filho->filho->token.info)){
+                                if(!existeNomeEmEscopo(smbs,(char *) "global",larv->filho->prox->prox->filho->filho->token.info)){
                                     strcpy(desc,escopo);
                                     strcat(desc," tipo não declarado - ");
                                     strcat(desc,larv->filho->prox->prox->filho->filho->token.info);
-                                    erro("",larv->token.info,desc ,1);
+                                    erroSemantico(larv->token.info,desc);
                                 }
                             }
 
@@ -778,20 +789,20 @@ No* tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
                 strcpy(desc,escopo);
                 strcat(desc," tipo já declarado  - ");
                 strcat(desc,iden);
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
             }
 
             // fim semantico
             return larv;
         }
         else{
-            erro("=",larv->token.info,"",0);
+            erroSintatico( (char *) "=",larv->token.info);
             //std::cout<< "erro em <TIPO>, falta =" <<std::endl;
             return larv;
         }
     }
     else{
-        erro("IDENTIFICADOR",larv->token.info,"",0);
+        erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
         //std::cout<< "Erro em <CONSTANTE>identificador não encontrado"<<std::endl;
         return larv;
     }
@@ -815,12 +826,12 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
     larv->filho=tipo_dado(fin,tk,linha,col);
     int qnt_params=0;
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho->prox=identificador(fin,tk,linha,col);
+        larv->filho->prox=identificador(tk);
         // jogar esse identificador na tabela principal
         strcpy(escopo,tk.info);// atualizando o escopo para a função
 
         if(!existeNomeEmEscopo(smbs,escopo,tk.info)){
-            SimboloFuncao *sf = new SimboloFuncao(tk.info,"global","funcao");
+            SimboloFuncao *sf = new SimboloFuncao(tk.info,(char *) "global",(char *) "funcao");
         //
         strncpy(iden,tk.info,21); // salvando o identificador no temporario
         tk=getToken(fin,linha,col);
@@ -846,12 +857,12 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                erro(")",larv->token.info,"",0);
+                erroSintatico( (char *) ")",larv->token.info);
                 return larv;
             }
         }
         else{
-            erro("(",larv->token.info,"",0);
+            erroSintatico( (char *) "(",larv->token.info);
             return larv;
 
         }
@@ -860,7 +871,7 @@ No * nome_funcao(std::ifstream & fin,Token &tk, int *linha,int *col){
             //erro ja existe identificador em escopo
             strcpy(desc,"identificador já em uso  - ");
             strcat(desc,iden);
-            erro("",larv->token.info,desc ,1);
+            erroSemantico(larv->token.info,desc);
         }
     }
     return larv;
@@ -880,7 +891,7 @@ No* senao(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
 }
-No* op_logico(std::ifstream & fin,Token tk, int *linha,int *col){
+No* op_logico(Token tk){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<OP_LOGICO> ");
     larv->filho=insereLista(larv->filho,tk);
@@ -891,7 +902,7 @@ No* exp_logica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_LOGICA_2> ");
     if((tk.tipo==cte::MAIOR) || (tk.tipo==cte::MENOR) ||(tk.tipo==cte::IGUAL) ||(tk.tipo==cte::EXCLAMACAO) ){
-        larv->filho=op_logico(fin,tk,linha,col);
+        larv->filho=op_logico(tk);
         tk=getToken(fin, linha,col); // test
         larv->filho->prox=exp_logica(fin,tk,linha,col);
         return larv;
@@ -900,7 +911,7 @@ No* exp_logica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
         return larv;
     }
 }
-No* op_matematico(std::ifstream & fin,Token tk, int *linha,int *col){
+No* op_matematico(Token tk){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<OP_MATEMATICO> ");
     larv->filho=insereLista(larv->filho,tk);
@@ -911,7 +922,7 @@ No* exp_matematica_2(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_MATEMATiCA_2> ");
     if((tk.tipo==cte::MAIS) || (tk.tipo==cte::MENOS) ||(tk.tipo==cte::ASTERISCO) ||(tk.tipo==cte::BARRA) ){
-        larv->filho=op_matematico(fin,tk,linha,col);
+        larv->filho=op_matematico(tk);
         tk=getToken(fin, linha,col); // test
         larv->filho->prox=exp_matematica(fin,tk,linha,col);
         return larv;
@@ -926,7 +937,7 @@ No* exp_matematica(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<EXP_MATEMATICA> ");
      if((tk.tipo==cte::MAIS) || (tk.tipo==cte::MENOS) ||(tk.tipo==cte::ASTERISCO) ||(tk.tipo==cte::BARRA) ){
-        larv->filho=op_matematico(fin,tk,linha,col);
+        larv->filho=op_matematico(tk);
         tk=getToken(fin, linha,col);
         larv->filho->prox=nome_numero(fin,tk,linha,col);
         larv->filho->prox->prox=exp_matematica(fin,tk,linha,col);
@@ -1008,7 +1019,7 @@ No* valor_2(std::ifstream & fin,Token &tk, int *linha,int *col){
         }
         else{
             //std::cout<<"erro em valor_2, FALTOU fechar colchetes  )"<<std::endl;
-            erro(")",larv->token.info,"",0);
+            erroSintatico( (char *) ")",larv->token.info);
             return larv;
 
         }
@@ -1024,7 +1035,7 @@ No* valor(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<VALOR>");
     if(tk.tipo==cte::IDENTIFICADOR){
-        larv->filho=identificador(fin,tk,linha,col);
+        larv->filho=identificador(tk);
         tk=getToken(fin, linha,col);
         larv->filho->prox=valor_2(fin,tk,linha,col);
         return larv;
@@ -1069,7 +1080,7 @@ indice(std::ifstream & fin,Token &tk, int *linha,int *col){
             tk=getToken(fin, linha,col);
             return larv;
         }else{
-            erro("]",larv->token.info,"",0);
+            erroSintatico( (char *) "]",larv->token.info);
             return larv;
         }
 
@@ -1082,7 +1093,7 @@ indice(std::ifstream & fin,Token &tk, int *linha,int *col){
 No* nome(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
     strcpy(larv->token.info,"<NOME>");
-    larv->filho=identificador(fin,tk,linha,col);
+    larv->filho=identificador(tk);
     tk=getToken(fin, linha,col);// ultimo altera
     larv->filho->prox=indice(fin,tk,linha,col);
     return larv;
@@ -1103,7 +1114,7 @@ No* comandos(std::ifstream & fin,Token &tk, int *linha,int *col){
 
         }else{
             std::cout<< "erro em <COMANDOS>, falta ;"<<tk.linha <<std::endl;
-            erro(";",larv->token.info,"",0);
+            erroSintatico( (char *) ";",larv->token.info);
             return larv;
         }
     }
@@ -1137,14 +1148,14 @@ int erroExpLogica(No* larv){
 //        std::cout<<larv->filho->filho->token.info<<std::endl;
 //        std::cout<<larv->filho->filho->filho->filho->token.info<<std::endl;
         if(!existeNomeEmEscopo(smbs,escopo,larv->filho->filho->filho->filho->token.info)
-                && !existeNomeEmEscopo(smbs,"global",larv->filho->filho->filho->filho->token.info)){ // verificação sementico
+                && !existeNomeEmEscopo(smbs, (char *) "global",larv->filho->filho->filho->filho->token.info)){ // verificação sementico
             strncpy(iden,larv->filho->filho->filho->filho->token.info,21);
             strcpy(desc,escopo);
             strcat(desc," variavel - \"");
             strcat(desc,iden);
             strcat(desc,"\" não declarada em escopo ");
             strcat(desc,escopo);
-            erro("",larv->token.info,desc ,1);
+            erroSemantico(larv->token.info,desc);
             return 1;
         } //erro no semantico
         else{ // até aki ta certo
@@ -1152,7 +1163,7 @@ int erroExpLogica(No* larv){
 //            std::cout<<larv->filho->filho->filho->filho->token.tipo<<std::endl;
             char *temp=tipoNomeEmEscopo(smbs,escopo,larv->filho->filho->filho->filho->token.info);
             if(!strcmp(temp,"")) //se o cara é igual a "", ele n esta nesse escopo, vamos pro outro
-                temp=tipoNomeEmEscopo(smbs,"global",larv->filho->filho->filho->filho->token.info);
+                temp=tipoNomeEmEscopo(smbs,(char *) "global",larv->filho->filho->filho->filho->token.info);
 //            std::cout<< "ppp"<< temp<<std::endl;
             compara.push_back(temp);
             if(larv->filho->prox->prox->filho!=NULL){
@@ -1166,7 +1177,7 @@ int erroExpLogica(No* larv){
     }
     if(strcmp(larv->filho->filho->token.info,"<NUMERO>")==0){
 //        std::cout<<"numeroooo"<<std::endl;
-        compara.push_back("numero");
+        compara.push_back((char *) "numero");
         if(larv->filho->prox->prox->filho!=NULL){
             return erroExpLogica(larv->filho->prox->prox->filho->prox);
         }
@@ -1205,7 +1216,7 @@ void verificafuncao(char *nomefunc,No *larv,int &params,int totalparams){
                     strcat(desc," a funcao \"");
                     strcat(desc,nomefunc);
                     strcat(desc,"\" possui mais parametros de entrada do que foi declarada");
-                    erro("",larv->token.info,desc ,1);
+                    erroSemantico(larv->token.info,desc);
                 }
             }
         }
@@ -1222,7 +1233,7 @@ void verificafuncao(char *nomefunc,No *larv,int &params,int totalparams){
             strcat(desc,tipoParamFuncao(smbs,nomefunc,params));
             strcat(desc," mas é do tipo ");
             strcat(desc,tipo);
-            erro("",larv->token.info,desc ,1);
+            erroSemantico(larv->token.info,desc);
 
         }
 
@@ -1245,7 +1256,7 @@ void verificafuncao(char *nomefunc,No *larv,int &params,int totalparams){
                     strcat(desc," a funcao \"");
                     strcat(desc,nomefunc);
                     strcat(desc,"\" possui mais parametros de entrada do que foi declarada");
-                    erro("",larv->token.info,desc ,1);
+                    erroSemantico(larv->token.info,desc);
                 }
               }
           }
@@ -1261,7 +1272,7 @@ void verificafuncao(char *nomefunc,No *larv,int &params,int totalparams){
               strcat(desc,tipoParamFuncao(smbs,nomefunc,params));
               strcat(desc," mas é do tipo ");
               strcat(desc,"numérico");
-              erro("",larv->token.info,desc ,1);
+              erroSemantico(larv->token.info,desc);
           }
       }
 
@@ -1273,10 +1284,10 @@ void verificaAtribuicao(No *larv){//semantico
 //    std::cout<< std::endl;
 
  if(!strcmp(larv->filho->token.info,"<IDENTIFICADOR>")){
-     if(existeNomeEmEscopo(smbs,escopo,larv->filho->filho->token.info) || existeNomeEmEscopo(smbs,"global",larv->filho->filho->token.info)){
+     if(existeNomeEmEscopo(smbs,escopo,larv->filho->filho->token.info) || existeNomeEmEscopo(smbs,(char *)  "global",larv->filho->filho->token.info)){
 
          char *classe;
-         classe=classeNomeEmEscopo(smbs,"global",larv->filho->filho->token.info);
+         classe=classeNomeEmEscopo(smbs,(char *) "global",larv->filho->filho->token.info);
          if(!strcmp(classe,"funcao")){//aki passo a arvore de parametro
 //            int params_atual=0;
             int params=0;
@@ -1292,7 +1303,7 @@ void verificaAtribuicao(No *larv){//semantico
                 strcat(desc,larv->filho->filho->token.info);
                 strcat(desc,"\" possui menos parametros de entrada do que foi declarada. linha ");
                 strcat(desc,ss.str().c_str());
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
             }else
                 if(larv->filho->prox->filho->prox->filho->filho==NULL && qnttotalparams>0){
                     std::stringstream ss;
@@ -1303,7 +1314,7 @@ void verificaAtribuicao(No *larv){//semantico
                     strcat(desc,larv->filho->filho->token.info);
                     strcat(desc,"\" possui menos parametros de entrada do que foi declarada. linha ");
                     strcat(desc,ss.str().c_str());
-                    erro("",larv->token.info,desc ,1);
+                    erroSemantico(larv->token.info,desc);
 
 
                 }
@@ -1318,7 +1329,7 @@ void verificaAtribuicao(No *larv){//semantico
          strcat(desc,"\" não declarada em escopo ");
          strcat(desc,escopo);
          strcat(desc," atribuição");
-         erro("",larv->token.info,desc ,1);
+         erroSemantico(larv->token.info,desc);
 
 
      }
@@ -1364,7 +1375,7 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }else{
                 //std::cout<<" erro <COMANDO> faltou then"<<std::endl;
-                erro("then",larv->token.info,"",0);
+                erroSintatico( (char *) "then",larv->token.info);
                 return larv;
             }
         }
@@ -1392,7 +1403,7 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
 //        std::cout<< "--- "<< larv->filho->filho->filho->token.info<<"-- " <<escopo<<std::endl;
         strncpy(iden,larv->filho->filho->filho->token.info,21);
         if(existeNomeEmEscopo(smbs,escopo,larv->filho->filho->filho->token.info)
-                || existeNomeEmEscopo(smbs,"global",larv->filho->filho->filho->token.info)){ // verificação sementico
+                || existeNomeEmEscopo(smbs,(char *)  "global",larv->filho->filho->filho->token.info)){ // verificação sementico
             if(strcmp(classeNomeEmEscopo(smbs,escopo,larv->filho->filho->filho->token.info),"const")){
 
                 if(tk.tipo==cte::ATRIBUIR){
@@ -1412,7 +1423,7 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
                 strcat(desc," variavel - \"");
                 strcat(desc,iden);
                 strcat(desc,"\" é do tipo constante ");
-                erro("",larv->token.info,desc ,1);
+                erroSemantico(larv->token.info,desc);
 
             }
         }
@@ -1422,10 +1433,12 @@ No* comando(std::ifstream & fin,Token &tk, int *linha,int *col){
             strcat(desc,iden);
             strcat(desc,"\" não declarada em escopo ");
             strcat(desc,escopo);
-            erro("",larv->token.info,desc ,1);
-            return NULL;
+            erroSemantico(larv->token.info,desc);
+
         }
     }
+
+    return NULL;
 }
 No * bloco(std::ifstream & fin,Token &tk, int *linha,int *col){
     No *larv =criaNo(); /// lista auxiliar para montar a lista de filhos
@@ -1444,7 +1457,7 @@ No * bloco(std::ifstream & fin,Token &tk, int *linha,int *col){
         }
         else{
             //std::cout<<" <BLOCO> ; não encontrado "<<tk.linha<< std::endl;
-            erro(";",larv->token.info,"",0);
+            erroSintatico( (char *) ";",larv->token.info);
             return larv;
         }
     }
@@ -1541,13 +1554,13 @@ No * def_tipo(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                erro(";",larv->token.info,"",0);
+                erroSintatico( (char *) ";",larv->token.info);
                 //std::cout<< "erro em def_tipo, falta ;" <<std::endl;
                 return larv;
             }
             return larv;
         }else{
-            erro("IDENTIFICADOR",larv->token.info,"",0);
+            erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
             //std::cout<< "identificador não encontrado"<<std::endl;
             return larv;
         }
@@ -1576,13 +1589,13 @@ No * def_var(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                erro(";",larv->token.info,"",0);
+                erroSintatico( (char *) ";",larv->token.info);
                 //std::cout<< "erro em def_var, falta ;" <<std::endl;
                 return larv;
             }
 //            return larv;
         }else{
-            erro("IDENTIFICADOR",larv->token.info,"",0);
+            erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
             //std::cout<< "identificador não encontrado"<<std::endl;
             return NULL;
         }
@@ -1612,13 +1625,13 @@ No * def_const(std::ifstream & fin,Token &tk, int *linha,int *col){
                 return larv;
             }
             else{
-                erro(";",larv->token.info,"",0);
+                erroSintatico( (char *) ";",larv->token.info);
                 //std::cout<< "erro em def_const, falta ;" <<std::endl;
                 return larv;
             }
         }
         else{
-            erro("IDENTIFICADOR",larv->token.info,"",0);
+            erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
             //std::cout<< "identificador não encontrado"<<std::endl;
             return larv;
         }
@@ -1657,8 +1670,9 @@ No* corpo(std::ifstream & fin,Token &tk, int *linha,int *col){
 }
 
 
-No* identificador(std::ifstream &fin,Token tk, int *linha,int *col){
+No* identificador(Token tk){
     No *larv= criaNo();
+
 
 
     if(tk.tipo==cte::IDENTIFICADOR){
@@ -1685,7 +1699,7 @@ No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
         larv->filho=insereLista(larv->filho,tk);
         tk=getToken(fin, linha,col);
         if(tk.tipo==cte::IDENTIFICADOR){
-            larv->filho->prox=identificador(fin,tk,linha,col);
+            larv->filho->prox=identificador(tk);
 //            std::cout<<"teste"<<std::endl;
             tk=getToken(fin, linha,col);
             if(tk.tipo==cte::PVIRGULA){
@@ -1695,17 +1709,17 @@ No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
                 return larv;
             }else{
                 //std::cout<< "; não encontrado"<<std::endl;
-                erro(";",larv->token.info,"",0);
+                erroSintatico( (char *) ";",larv->token.info);
                 return NULL;
             }
         }
         else{
-                erro("IDENTIFICADOR",larv->token.info,"",0);
+                erroSintatico( (char *) "IDENTIFICADOR",larv->token.info);
                 //std::cout<< "identificador não encontrado"<<std::endl;
                 return NULL;
         }
     }else{
-        erro("INICIADOR",larv->token.info,"",0);
+        erroSintatico( (char *) "INICIADOR",larv->token.info);
         //std::cout<< "iniciador não encontrado"<<std::endl;
         return NULL;
     }
@@ -1713,8 +1727,8 @@ No* sintatico(std::ifstream & fin,Token tk, int *linha,int *col){
 
 
 int main(int argc, char **argv) {
-//    std::ifstream fin("file.lug", std::fstream::in);
-    std::ifstream fin("file2.lug", std::fstream::in);
+    std::ifstream fin("file.lug", std::fstream::in);
+//    std::ifstream fin("file2.lug", std::fstream::in);
 //    std::ifstream fin("file3.lug", std::fstream::in);
 //    std::ifstream fin("file3.lug", std::fstream::in);
     int linha= 1;
@@ -1736,7 +1750,7 @@ int main(int argc, char **argv) {
 //        tk=getToken(fin, &linha,&coluna);
 //        std::cout << tk.info << " " << tk.linha << " " << tk.col << " "<< tk.tipo <<std::endl;
 //    }
-    smbs.push_back(new Simbolo("result","global","var","real"));
+    smbs.push_back(new Simbolo((char *) "result",(char *) "global",(char *) "var", (char *) "real"));
     arv=sintatico(fin,tk, &linha,&coluna);
     a->setRaiz(arv);
     std::cout << " total de nos  " <<contarNos(a->getRaiz()) << std::endl;
