@@ -1777,7 +1777,9 @@ int main(int argc, char **argv) {
     a->show();
 
 //    listarSimbolos(smbs);
-
+    smbs.clear();
+    smbs_var.clear();
+    delete a;
     std::cout<<"-Fim-"<< std::endl;
     return app.exec();
 }

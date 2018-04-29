@@ -97,7 +97,7 @@ void Arvore::show(){
     while(p->waitForReadyRead(1600)){
         data.append(p->readAll());
     }
-
+    delete p;
     pixmap.loadFromData(data);
 
     this->_scene->addPixmap(pixmap);
