@@ -1,0 +1,9 @@
+
+// falta implemntar numeração dos parametros... fazer uma função pra pegar quantos parametros em um escopo e somar mais um quando adicionar
+Regras Semanticas
+->Identificador deve ser declarado antes de ser utilizado
+->Comparação/Atribuição e operações somente do mesmo tipo
+->Quantidade e os tipos de dos parametros devem ser compatíveis com os argumentos.
+->Constantes não podem aparecer no lado esquerdo de uma atribuição.
+
+->Não permitir 2 ou mais ID com o mesmo nome no escopo.
